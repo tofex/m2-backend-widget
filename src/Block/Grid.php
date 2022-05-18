@@ -122,6 +122,9 @@ abstract class Grid
     /** @var array */
     private $joinValues = [];
 
+    /** @var array */
+    private $joinAttributeValues = [];
+
     /**
      * @param Context                          $context
      * @param Data                             $backendHelper
@@ -225,12 +228,33 @@ abstract class Grid
     abstract protected function prepareCollection(AbstractDb $collection);
 
     /**
-     * @param AbstractDb $collection
+     * @param Collection $collection
      *
      * @return void
      */
     public function setCollection($collection)
     {
+        if ($collection instanceof AbstractDb) {
+            foreach ($this->joinAttributeValues as $valueColumnName => $attributeColumnName) {
+                $optionTableAlias = sprintf('eao_%s', $valueColumnName);
+                $optionValueTableAlias = sprintf('eaov_%s', $valueColumnName);
+                $optionValueColumnName = sprintf('%s_value', $valueColumnName);
+
+                $collection->getSelect()
+                    ->joinLeft([$optionTableAlias => $this->databaseHelper->getTableName('eav_attribute_option')],
+                        sprintf('%s.attribute_id = main_table.%s and %s.option_id = main_table.%s', $optionTableAlias,
+                            $attributeColumnName, $optionTableAlias, $valueColumnName), '');
+
+                $collection->getSelect()
+                    ->joinLeft([$optionValueTableAlias => $this->databaseHelper->getTableName('eav_attribute_option_value')],
+                        sprintf('%s.option_id = %s.option_id and %s.store_id = 0', $optionValueTableAlias,
+                            $optionTableAlias, $optionValueTableAlias), [
+                            sprintf('IF(%s.value IS NULL, main_table.%s, %s.value) as %s', $optionValueTableAlias,
+                                $valueColumnName, $optionValueTableAlias, $optionValueColumnName)
+                        ]);
+            }
+        }
+
         $this->addJoinValuesToCollection($collection, $this->joinValues);
 
         parent::setCollection($collection);
@@ -998,5 +1022,152 @@ abstract class Grid
         }
 
         return $this->object;
+    }
+
+    /**
+     * @param string $objectFieldName
+     * @param string $label
+     * @param bool   $customer
+     * @param bool   $address
+     * @param bool   $category
+     * @param bool   $product
+     *
+     * @throws Exception
+     */
+    protected function addEavAttributeColumn(
+        string $objectFieldName,
+        string $label,
+        bool $customer = false,
+        bool $address = false,
+        bool $category = false,
+        bool $product = true)
+    {
+        $this->gridHelper->addEavAttributeColumn($this, $objectFieldName, $label, $customer, $address, $category,
+            $product);
+    }
+
+    /**
+     * @param string $valueFieldName
+     * @param string $attributeFieldName
+     * @param string $label
+     *
+     * @throws Exception
+     */
+    protected function addEavAttributeValueColumn(string $valueFieldName, string $attributeFieldName, string $label)
+    {
+        $this->gridHelper->addEavAttributeValueColumn($this, $valueFieldName, $attributeFieldName, $label);
+    }
+
+    /**
+     * @param string $objectFieldName
+     * @param string $label
+     * @param bool   $customer
+     * @param bool   $address
+     * @param bool   $category
+     * @param bool   $product
+     *
+     * @throws Exception
+     */
+    protected function addEavAttributeSetColumn(
+        string $objectFieldName,
+        string $label,
+        bool $customer = false,
+        bool $address = false,
+        bool $category = false,
+        bool $product = true)
+    {
+        $this->gridHelper->addEavAttributeSetColumn($this, $objectFieldName, $label, $customer, $address, $category,
+            $product);
+    }
+
+    /**
+     * @param string $objectFieldName
+     * @param string $label
+     * @param bool   $customer
+     * @param bool   $address
+     * @param bool   $category
+     * @param bool   $product
+     *
+     * @throws Exception
+     */
+    protected function addEavEntityTypeColumn(
+        string $objectFieldName,
+        string $label,
+        bool $customer = false,
+        bool $address = false,
+        bool $category = false,
+        bool $product = true)
+    {
+        $this->gridHelper->addEavEntityTypeColumn($this, $objectFieldName, $label, $customer, $address, $category,
+            $product);
+    }
+
+    /**
+     * @param string $objectFieldName
+     * @param string $label
+     *
+     * @throws Exception
+     */
+    public function addProductAttributeCodeColumn(
+        string $objectFieldName,
+        string $label)
+    {
+        $this->gridHelper->addProductAttributeCodeColumn($this, $objectFieldName, $label);
+    }
+
+    /**
+     * @param string $objectFieldName
+     * @param string $label
+     *
+     * @throws Exception
+     */
+    public function addCustomerAttributeCodeColumn(string $objectFieldName, string $label)
+    {
+        $this->gridHelper->addCustomerAttributeCodeColumn($this, $objectFieldName, $label);
+    }
+
+    /**
+     * @param string $objectFieldName
+     * @param string $label
+     *
+     * @throws Exception
+     */
+    public function addAddressAttributeCodeColumn(string $objectFieldName, string $label)
+    {
+        $this->gridHelper->addAddressAttributeCodeColumn($this, $objectFieldName, $label);
+    }
+
+    /**
+     * @param string $valueFieldName
+     * @param string $attributeFieldName
+     */
+    public function addJoinAttributeValues(string $valueFieldName, string $attributeFieldName)
+    {
+        $this->joinAttributeValues[ $valueFieldName ] = $attributeFieldName;
+    }
+
+    /**
+     * @param AbstractCollection $collection
+     * @param Column             $column
+     */
+    public function filterEavAttributeOptionValue(AbstractCollection $collection, Column $column)
+    {
+        $filter = $column->getFilter();
+
+        $condition = $filter->getCondition();
+
+        if (is_array($condition) && array_key_exists('like', $condition)) {
+            /** @var Zend_Db_Expr $expression */
+            $expression = $condition[ 'like' ];
+
+            $value = $expression->__toString();
+
+            $optionValueColumnName = $column->getData('index');
+            $valueColumnName = preg_replace('/_value$/', '', $optionValueColumnName);
+            $optionValueTableAlias = sprintf('eaov_%s', $valueColumnName);
+
+            $collection->getSelect()->where(sprintf('IF(%s.value IS NULL, main_table.%s, %s.value) like %s',
+                $optionValueTableAlias, $valueColumnName, $optionValueTableAlias, $value));
+        }
     }
 }

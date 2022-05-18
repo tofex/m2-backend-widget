@@ -2,8 +2,10 @@
 
 namespace Tofex\BackendWidget\Helper;
 
+use Exception;
 use IntlDateFormatter;
 use Magento\Backend\Block\Store\Switcher\Form\Renderer\Fieldset\Element;
+use Magento\Catalog\Model\Product;
 use Magento\Catalog\Model\Product\Type;
 use Magento\Cms\Model\Wysiwyg\Config;
 use Magento\Config\Model\Config\Source\Website;
@@ -24,9 +26,15 @@ use Tofex\BackendWidget\Model\Backend\Session;
 use Tofex\Core\Helper\Customer;
 use Tofex\Core\Helper\Template;
 use Tofex\Core\Helper\Url;
+use Tofex\Core\Model\Config\Source\Attribute;
+use Tofex\Core\Model\Config\Source\Attribute\AddressAttributeCode;
+use Tofex\Core\Model\Config\Source\Attribute\CustomerAttributeCode;
+use Tofex\Core\Model\Config\Source\Attribute\ProductAttributeCode;
+use Tofex\Core\Model\Config\Source\AttributeSet;
 use Tofex\Core\Model\Config\Source\Categories;
 use Tofex\Core\Model\Config\Source\CmsBlock;
 use Tofex\Core\Model\Config\Source\CmsPage;
+use Tofex\Core\Model\Config\Source\EntityType;
 use Tofex\Core\Model\Config\Source\Operator;
 use Tofex\Core\Model\Config\Source\Payment\ActiveMethods;
 use Tofex\Core\Model\Config\Source\TypeId;
@@ -55,6 +63,9 @@ class Form
 
     /** @var Customer */
     protected $customerHelper;
+
+    /** @var \Tofex\Core\Helper\Attribute */
+    protected $attributeHelper;
 
     /** @var Session */
     protected $adminhtmlSession;
@@ -95,6 +106,24 @@ class Form
     /** @var ActiveMethods */
     protected $sourcePaymentActiveMethods;
 
+    /** @var Attribute */
+    protected $sourceAttributes;
+
+    /** @var AttributeSet */
+    protected $sourceAttributeSets;
+
+    /** @var EntityType */
+    protected $sourceEntityTypes;
+
+    /** @var ProductAttributeCode */
+    protected $sourceProductAttributeCode;
+
+    /** @var CustomerAttributeCode */
+    protected $sourceCustomerAttributeCode;
+
+    /** @var AddressAttributeCode */
+    protected $sourceAddressAttributeCode;
+
     /** @var Collection */
     protected $customerGroupCollection;
 
@@ -113,6 +142,7 @@ class Form
      * @param Template                                      $templateHelper
      * @param Url                                           $urlHelper
      * @param Customer                                      $customerHelper
+     * @param \Tofex\Core\Helper\Attribute                  $attributeHelper
      * @param Session                                       $adminhtmlSession
      * @param FormFactory                                   $formFactory
      * @param Yesno                                         $sourceYesNo
@@ -126,6 +156,12 @@ class Form
      * @param Operator                                      $sourceOperator
      * @param Country                                       $sourceCountry
      * @param ActiveMethods                                 $sourcePaymentActiveMethods
+     * @param Attribute                                     $sourceAttributes
+     * @param AttributeSet                                  $sourceAttributeSets
+     * @param EntityType                                    $sourceEntityTypes
+     * @param ProductAttributeCode                          $sourceProductAttributeCode
+     * @param CustomerAttributeCode                         $sourceCustomerAttributeCode
+     * @param AddressAttributeCode                          $sourceAddressAttributeCode
      * @param TimezoneInterface                             $localeDate
      * @param Type                                          $productType
      * @param Config                                        $wysiwygConfig
@@ -136,6 +172,7 @@ class Form
         Template $templateHelper,
         Url $urlHelper,
         Customer $customerHelper,
+        \Tofex\Core\Helper\Attribute $attributeHelper,
         Session $adminhtmlSession,
         FormFactory $formFactory,
         Yesno $sourceYesNo,
@@ -149,6 +186,12 @@ class Form
         Operator $sourceOperator,
         Country $sourceCountry,
         ActiveMethods $sourcePaymentActiveMethods,
+        Attribute $sourceAttributes,
+        AttributeSet $sourceAttributeSets,
+        EntityType $sourceEntityTypes,
+        ProductAttributeCode $sourceProductAttributeCode,
+        CustomerAttributeCode $sourceCustomerAttributeCode,
+        AddressAttributeCode $sourceAddressAttributeCode,
         TimezoneInterface $localeDate,
         Type $productType,
         Config $wysiwygConfig)
@@ -158,6 +201,7 @@ class Form
         $this->templateHelper = $templateHelper;
         $this->urlHelper = $urlHelper;
         $this->customerHelper = $customerHelper;
+        $this->attributeHelper = $attributeHelper;
 
         $this->adminhtmlSession = $adminhtmlSession;
         $this->formFactory = $formFactory;
@@ -172,6 +216,13 @@ class Form
         $this->sourceOperator = $sourceOperator;
         $this->sourceCountry = $sourceCountry;
         $this->sourcePaymentActiveMethods = $sourcePaymentActiveMethods;
+        $this->sourceAttributes = $sourceAttributes;
+        $this->sourceAttributeSets = $sourceAttributeSets;
+        $this->sourceEntityTypes = $sourceEntityTypes;
+        $this->sourceProductAttributeCode = $sourceProductAttributeCode;
+        $this->sourceCustomerAttributeCode = $sourceCustomerAttributeCode;
+        $this->sourceAddressAttributeCode = $sourceAddressAttributeCode;
+
         $this->customerGroupCollection = $this->customerHelper->getCustomerGroupCollection();
         $this->dateFormatIso = $localeDate->getDateTimeFormat(IntlDateFormatter::MEDIUM);
         $this->productType = $productType;
@@ -1332,5 +1383,309 @@ class Form
             'style'  => 'height: 400px;',
             'config' => $this->wysiwygConfig->getConfig()
         ]);
+    }
+
+    /**
+     * @param AbstractModel $object
+     * @param Fieldset      $fieldSet
+     * @param string        $objectRegistryKey
+     * @param string        $objectFieldName
+     * @param string        $label
+     * @param bool          $required
+     * @param bool          $customer
+     * @param bool          $address
+     * @param bool          $category
+     * @param bool          $product
+     */
+    public function addEavAttributeField(
+        AbstractModel $object,
+        Fieldset $fieldSet,
+        string $objectRegistryKey,
+        string $objectFieldName,
+        string $label,
+        bool $required = false,
+        bool $customer = false,
+        bool $address = false,
+        bool $category = false,
+        bool $product = true)
+    {
+        $fieldSet->addField($objectFieldName, 'select', [
+            'name'     => $objectFieldName,
+            'label'    => $label,
+            'value'    => $this->getFieldValue($objectRegistryKey, $objectFieldName, null, $object),
+            'values'   => $this->sourceAttributes->toOptionArrayWithEntities($customer, $address, $category, $product),
+            'required' => $required
+        ]);
+    }
+
+    /**
+     * @param AbstractModel $object
+     * @param Fieldset      $fieldSet
+     * @param string        $objectFieldName
+     * @param string        $label
+     * @param bool          $required
+     * @param bool          $customer
+     * @param bool          $address
+     * @param bool          $category
+     * @param bool          $product
+     */
+    protected function addEavAttributeMultiselectField(
+        AbstractModel $object,
+        Fieldset $fieldSet,
+        string $objectFieldName,
+        string $label,
+        bool $required = false,
+        bool $customer = false,
+        bool $address = false,
+        bool $category = false,
+        bool $product = true)
+    {
+        $fieldSet->addField($objectFieldName, 'multiselect', [
+            'name'     => $objectFieldName,
+            'label'    => $label,
+            'value'    => $object->getDataUsingMethod($objectFieldName),
+            'values'   => $this->sourceAttributes->toOptionArrayWithEntities($customer, $address, $category, $product),
+            'required' => $required
+        ]);
+    }
+
+    /**
+     * @param AbstractModel $object
+     * @param string        $objectName
+     * @param Fieldset      $fieldSet
+     * @param string        $objectRegistryKey
+     * @param string        $objectFieldName
+     * @param string        $label
+     * @param array         $targetFieldNames
+     * @param bool          $required
+     */
+    public function addEavAttributeFieldWithUpdate(
+        AbstractModel $object,
+        string $objectName,
+        Fieldset $fieldSet,
+        string $objectRegistryKey,
+        string $objectFieldName,
+        string $label,
+        array $targetFieldNames,
+        bool $required = false)
+    {
+        $onChangeFieldId = sprintf('%s_%s', $objectName, $objectFieldName);
+
+        $onChange = [];
+
+        foreach ($targetFieldNames as $targetFieldName) {
+            $targetFieldId = sprintf('%s_%s', $objectName, $targetFieldName);
+
+            $onChange[] = $this->getUpdateEavAttributeFormElementJs($onChangeFieldId, $targetFieldId);
+        }
+
+        $fieldSet->addField($objectFieldName, 'select', [
+            'name'     => $objectFieldName,
+            'label'    => $label,
+            'value'    => $this->getFieldValue($objectRegistryKey, $objectFieldName, null, $object),
+            'values'   => $this->sourceAttributes->toOptionArray(),
+            'required' => $required,
+            'onchange' => implode(';', $onChange)
+        ]);
+    }
+
+    /**
+     * @param AbstractModel $object
+     * @param Fieldset      $fieldSet
+     * @param string        $objectRegistryKey
+     * @param string        $objectAttributeFieldName
+     * @param string        $objectFieldName
+     * @param string        $label
+     * @param bool          $required
+     *
+     * @throws Exception
+     */
+    public function addEavAttributeValueField(
+        AbstractModel $object,
+        Fieldset $fieldSet,
+        string $objectRegistryKey,
+        string $objectAttributeFieldName,
+        string $objectFieldName,
+        string $label,
+        bool $required = false)
+    {
+        $valueOptions = [];
+
+        if ($object->getId()) {
+            $attributeId = $object->getDataUsingMethod($objectAttributeFieldName);
+
+            if ($attributeId) {
+                $attribute = $this->attributeHelper->getAttribute(Product::ENTITY, $attributeId);
+
+                $valueOptions = $attribute->getSource()->getAllOptions();
+            }
+        }
+
+        if ($this->variableHelper->isEmpty($valueOptions)) {
+            $this->addTextField($fieldSet, $objectRegistryKey, $objectFieldName, $label, $object, $required);
+        } else {
+            $fieldSet->addField($objectFieldName, 'select', [
+                'name'     => $objectFieldName,
+                'label'    => $label,
+                'value'    => $object->getDataUsingMethod($objectFieldName),
+                'values'   => $valueOptions,
+                'required' => $required
+            ]);
+        }
+    }
+
+    /**
+     * @param AbstractModel $object
+     * @param Fieldset      $fieldSet
+     * @param string        $objectRegistryKey
+     * @param string        $objectFieldName
+     * @param string        $label
+     * @param bool          $required
+     * @param bool          $customer
+     * @param bool          $address
+     * @param bool          $category
+     * @param bool          $product
+     */
+    public function addEavAttributeSetField(
+        AbstractModel $object,
+        Fieldset $fieldSet,
+        string $objectRegistryKey,
+        string $objectFieldName,
+        string $label,
+        bool $required = false,
+        bool $customer = false,
+        bool $address = false,
+        bool $category = false,
+        bool $product = true)
+    {
+        $fieldSet->addField($objectFieldName, 'select', [
+            'name'     => $objectFieldName,
+            'label'    => $label,
+            'value'    => $this->getFieldValue($objectRegistryKey, $objectFieldName, null, $object),
+            'values'   => $this->sourceAttributeSets->toOptionArrayWithEntities($customer, $address, $category,
+                $product),
+            'required' => $required
+        ]);
+    }
+
+    /**
+     * @param AbstractModel $object
+     * @param Fieldset      $fieldSet
+     * @param string        $objectRegistryKey
+     * @param string        $objectFieldName
+     * @param string        $label
+     * @param bool          $required
+     * @param bool          $customer
+     * @param bool          $address
+     * @param bool          $category
+     * @param bool          $product
+     */
+    public function addEavEntityTypeField(
+        AbstractModel $object,
+        Fieldset $fieldSet,
+        string $objectRegistryKey,
+        string $objectFieldName,
+        string $label,
+        bool $required = false,
+        bool $customer = false,
+        bool $address = false,
+        bool $category = false,
+        bool $product = true)
+    {
+        $fieldSet->addField($objectFieldName, 'select', [
+            'name'     => $objectFieldName,
+            'label'    => $label,
+            'value'    => $this->getFieldValue($objectRegistryKey, $objectFieldName, null, $object),
+            'values'   => $this->sourceEntityTypes->toOptionArrayWithEntities($customer, $address, $category, $product),
+            'required' => $required
+        ]);
+    }
+
+    /**
+     * @param AbstractModel $object
+     * @param Fieldset      $fieldSet
+     * @param string        $objectRegistryKey
+     * @param string        $objectFieldName
+     * @param string        $label
+     * @param bool          $required
+     */
+    public function addProductAttributeCodeField(
+        AbstractModel $object,
+        Fieldset $fieldSet,
+        string $objectRegistryKey,
+        string $objectFieldName,
+        string $label,
+        bool $required = false)
+    {
+        $fieldSet->addField($objectFieldName, 'select', [
+            'name'     => $objectFieldName,
+            'label'    => $label,
+            'value'    => $this->getFieldValue($objectRegistryKey, $objectFieldName, null, $object),
+            'values'   => $this->sourceProductAttributeCode->toOptionArray(),
+            'required' => $required
+        ]);
+    }
+
+    /**
+     * @param AbstractModel $object
+     * @param Fieldset      $fieldSet
+     * @param string        $objectRegistryKey
+     * @param string        $objectFieldName
+     * @param string        $label
+     * @param bool          $required
+     */
+    public function addCustomerAttributeCodeField(
+        AbstractModel $object,
+        Fieldset $fieldSet,
+        string $objectRegistryKey,
+        string $objectFieldName,
+        string $label,
+        bool $required = false)
+    {
+        $fieldSet->addField($objectFieldName, 'select', [
+            'name'     => $objectFieldName,
+            'label'    => $label,
+            'value'    => $this->getFieldValue($objectRegistryKey, $objectFieldName, null, $object),
+            'values'   => $this->sourceCustomerAttributeCode->toOptionArray(),
+            'required' => $required
+        ]);
+    }
+
+    /**
+     * @param AbstractModel $object
+     * @param Fieldset      $fieldSet
+     * @param string        $objectRegistryKey
+     * @param string        $objectFieldName
+     * @param string        $label
+     * @param bool          $required
+     */
+    public function addAddressAttributeCodeField(
+        AbstractModel $object,
+        Fieldset $fieldSet,
+        string $objectRegistryKey,
+        string $objectFieldName,
+        string $label,
+        bool $required = false)
+    {
+        $fieldSet->addField($objectFieldName, 'select', [
+            'name'     => $objectFieldName,
+            'label'    => $label,
+            'value'    => $this->getFieldValue($objectRegistryKey, $objectFieldName, null, $object),
+            'values'   => $this->sourceAddressAttributeCode->toOptionArray(),
+            'required' => $required
+        ]);
+    }
+
+    /**
+     * @param string $sourceElementId
+     * @param string $targetElementId
+     *
+     * @return string
+     */
+    protected function getUpdateEavAttributeFormElementJs(string $sourceElementId, string $targetElementId): string
+    {
+        return sprintf('updateEavAttributeFormElement(\'%s\', \'%s\', \'%s\');',
+            urlencode($this->urlHelper->getBackendUrl('tofex_eav/attribute_option/values')), $sourceElementId,
+            $targetElementId);
     }
 }

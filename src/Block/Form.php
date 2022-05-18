@@ -2,6 +2,7 @@
 
 namespace Tofex\BackendWidget\Block;
 
+use Exception;
 use Magento\Backend\Block\Template\Context;
 use Magento\Backend\Block\Widget\Form\Generic;
 use Magento\Framework\Data\Form\Element\Fieldset;
@@ -748,5 +749,163 @@ abstract class Form
     {
         $this->formHelper->addEditorField($fieldSet, $this->objectRegistryKey, $objectFieldName, $label,
             $this->getObject());
+    }
+
+    /**
+     * @param Fieldset $fieldSet
+     * @param string   $objectFieldName
+     * @param string   $label
+     * @param bool     $required
+     * @param bool     $customer
+     * @param bool     $address
+     * @param bool     $category
+     * @param bool     $product
+     */
+    protected function addEavAttributeField(
+        Fieldset $fieldSet,
+        string $objectFieldName,
+        string $label,
+        bool $required = false,
+        bool $customer = false,
+        bool $address = false,
+        bool $category = false,
+        bool $product = true)
+    {
+        $this->formHelper->addEavAttributeField($this->getObject(), $fieldSet, $this->objectRegistryKey,
+            $objectFieldName, $label, $required, $customer, $address, $category, $product);
+    }
+
+    /**
+     * @param Fieldset $fieldSet
+     * @param string   $objectFieldName
+     * @param string   $label
+     * @param array    $targetFieldNames
+     * @param bool     $required
+     */
+    protected function addEavAttributeFieldWithUpdate(
+        Fieldset $fieldSet,
+        string $objectFieldName,
+        string $label,
+        array $targetFieldNames,
+        bool $required = false)
+    {
+        $this->formHelper->addEavAttributeFieldWithUpdate($this->getObject(), $this->objectName, $fieldSet,
+            $this->objectRegistryKey, $objectFieldName, $label, $targetFieldNames, $required);
+    }
+
+    /**
+     * @param Fieldset $fieldSet
+     * @param string   $objectAttributeFieldName
+     * @param string   $objectFieldName
+     * @param string   $label
+     * @param bool     $required
+     *
+     * @throws Exception
+     */
+    protected function addEavAttributeValueField(
+        Fieldset $fieldSet,
+        string $objectAttributeFieldName,
+        string $objectFieldName,
+        string $label,
+        bool $required = false)
+    {
+        $this->formHelper->addEavAttributeValueField($this->getObject(), $fieldSet, $this->objectRegistryKey,
+            $objectAttributeFieldName, $objectFieldName, $label, $required);
+    }
+
+    /**
+     * @param Fieldset $fieldSet
+     * @param string   $objectFieldName
+     * @param string   $label
+     * @param bool     $required
+     * @param bool     $customer
+     * @param bool     $address
+     * @param bool     $category
+     * @param bool     $product
+     */
+    protected function addEavAttributeSetField(
+        Fieldset $fieldSet,
+        string $objectFieldName,
+        string $label,
+        bool $required = false,
+        bool $customer = false,
+        bool $address = false,
+        bool $category = false,
+        bool $product = true)
+    {
+        $this->formHelper->addEavAttributeSetField($this->getObject(), $fieldSet, $this->objectRegistryKey,
+            $objectFieldName, $label, $required, $customer, $address, $category, $product);
+    }
+
+    /**
+     * @param Fieldset $fieldSet
+     * @param string   $objectFieldName
+     * @param string   $label
+     * @param bool     $required
+     * @param bool     $customer
+     * @param bool     $address
+     * @param bool     $category
+     * @param bool     $product
+     */
+    protected function addEavEntityTypeField(
+        Fieldset $fieldSet,
+        string $objectFieldName,
+        string $label,
+        bool $required = false,
+        bool $customer = false,
+        bool $address = false,
+        bool $category = false,
+        bool $product = true)
+    {
+        $this->formHelper->addEavEntityTypeField($this->getObject(), $fieldSet, $this->objectRegistryKey,
+            $objectFieldName, $label, $required, $customer, $address, $category, $product);
+    }
+
+    /**
+     * @param Fieldset $fieldSet
+     * @param string   $objectFieldName
+     * @param string   $label
+     * @param bool     $required
+     */
+    public function addProductAttributeCodeField(
+        Fieldset $fieldSet,
+        string $objectFieldName,
+        string $label,
+        bool $required = false)
+    {
+        $this->formHelper->addProductAttributeCodeField($this->getObject(), $fieldSet, $this->objectRegistryKey,
+            $objectFieldName, $label, $required);
+    }
+
+    /**
+     * @param Fieldset $fieldSet
+     * @param string   $objectFieldName
+     * @param string   $label
+     * @param bool     $required
+     */
+    public function addCustomerAttributeCodeField(
+        Fieldset $fieldSet,
+        string $objectFieldName,
+        string $label,
+        bool $required = false)
+    {
+        $this->formHelper->addCustomerAttributeCodeField($this->getObject(), $fieldSet, $this->objectRegistryKey,
+            $objectFieldName, $label, $required);
+    }
+
+    /**
+     * @param Fieldset $fieldSet
+     * @param string   $objectFieldName
+     * @param string   $label
+     * @param bool     $required
+     */
+    public function addAddressAttributeCodeField(
+        Fieldset $fieldSet,
+        string $objectFieldName,
+        string $label,
+        bool $required = false)
+    {
+        $this->formHelper->addAddressAttributeCodeField($this->getObject(), $fieldSet, $this->objectRegistryKey,
+            $objectFieldName, $label, $required);
     }
 }

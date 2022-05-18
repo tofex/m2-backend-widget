@@ -13,8 +13,14 @@ use Tofex\BackendWidget\Block\Grid\Column\Renderer\CustomerGroup;
 use Tofex\BackendWidget\Block\Grid\Column\Renderer\Description;
 use Tofex\Core\Helper\Customer;
 use Tofex\Core\Helper\Template;
+use Tofex\Core\Model\Config\Source\Attribute;
+use Tofex\Core\Model\Config\Source\Attribute\AddressAttributeCode;
+use Tofex\Core\Model\Config\Source\Attribute\CustomerAttributeCode;
+use Tofex\Core\Model\Config\Source\Attribute\ProductAttributeCode;
+use Tofex\Core\Model\Config\Source\AttributeSet;
 use Tofex\Core\Model\Config\Source\Categories;
 use Tofex\Core\Model\Config\Source\CmsPage;
+use Tofex\Core\Model\Config\Source\EntityType;
 use Tofex\Core\Model\Config\Source\Operator;
 use Tofex\Core\Model\Config\Source\Payment\ActiveMethods;
 use Tofex\Core\Model\Config\Source\TypeId;
@@ -60,21 +66,45 @@ class Grid
     /** @var ActiveMethods */
     protected $sourcePaymentActiveMethods;
 
+    /** @var Attribute */
+    protected $sourceAttributes;
+
+    /** @var AttributeSet */
+    protected $sourceAttributeSets;
+
+    /** @var EntityType */
+    protected $sourceEntityTypes;
+
+    /** @var ProductAttributeCode */
+    protected $sourceProductAttributeCode;
+
+    /** @var CustomerAttributeCode */
+    protected $sourceCustomerAttributeCode;
+
+    /** @var AddressAttributeCode */
+    protected $sourceAddressAttributeCode;
+
     /** @var Collection */
     protected $customerGroupCollection;
 
     /**
-     * @param Template $templateHelper
-     * @param Variables                   $variableHelper
-     * @param Customer                    $customerHelper
-     * @param Yesno                       $sourceYesNo
-     * @param Store                       $sourceStore
-     * @param CmsPage                     $sourceCmsPage
-     * @param TypeId                      $sourceTypeIds
-     * @param Categories                  $sourceCategories
-     * @param Operator                    $sourceOperator
-     * @param Country                     $sourceCountry
-     * @param ActiveMethods               $sourcePaymentActiveMethods
+     * @param Template              $templateHelper
+     * @param Variables             $variableHelper
+     * @param Customer              $customerHelper
+     * @param Yesno                 $sourceYesNo
+     * @param Store                 $sourceStore
+     * @param CmsPage               $sourceCmsPage
+     * @param TypeId                $sourceTypeIds
+     * @param Categories            $sourceCategories
+     * @param Operator              $sourceOperator
+     * @param Country               $sourceCountry
+     * @param ActiveMethods         $sourcePaymentActiveMethods
+     * @param Attribute             $sourceAttributes
+     * @param AttributeSet          $sourceAttributeSets
+     * @param EntityType            $sourceEntityTypes
+     * @param ProductAttributeCode  $sourceProductAttributeCode
+     * @param CustomerAttributeCode $sourceCustomerAttributeCode
+     * @param AddressAttributeCode  $sourceAddressAttributeCode
      */
     public function __construct(
         Template $templateHelper,
@@ -87,7 +117,13 @@ class Grid
         Categories $sourceCategories,
         Operator $sourceOperator,
         Country $sourceCountry,
-        ActiveMethods $sourcePaymentActiveMethods)
+        ActiveMethods $sourcePaymentActiveMethods,
+        Attribute $sourceAttributes,
+        AttributeSet $sourceAttributeSets,
+        EntityType $sourceEntityTypes,
+        ProductAttributeCode $sourceProductAttributeCode,
+        CustomerAttributeCode $sourceCustomerAttributeCode,
+        AddressAttributeCode $sourceAddressAttributeCode)
     {
         $this->templateHelper = $templateHelper;
         $this->variableHelper = $variableHelper;
@@ -101,6 +137,12 @@ class Grid
         $this->sourceOperator = $sourceOperator;
         $this->sourceCountry = $sourceCountry;
         $this->sourcePaymentActiveMethods = $sourcePaymentActiveMethods;
+        $this->sourceAttributes = $sourceAttributes;
+        $this->sourceAttributeSets = $sourceAttributeSets;
+        $this->sourceEntityTypes = $sourceEntityTypes;
+        $this->sourceProductAttributeCode = $sourceProductAttributeCode;
+        $this->sourceCustomerAttributeCode = $sourceCustomerAttributeCode;
+        $this->sourceAddressAttributeCode = $sourceAddressAttributeCode;
 
         $this->customerGroupCollection = $this->customerHelper->getCustomerGroupCollection();
     }
@@ -768,5 +810,160 @@ class Grid
         $this->sourcePaymentActiveMethods->setWithDefault($withDefault);
 
         $this->addOptionsColumn($grid, $objectFieldName, $label, $this->sourcePaymentActiveMethods->toOptions());
+    }
+
+    /**
+     * @param Extended $grid
+     * @param string   $objectFieldName
+     * @param string   $label
+     * @param bool     $customer
+     * @param bool     $address
+     * @param bool     $category
+     * @param bool     $product
+     *
+     * @throws Exception
+     */
+    public function addEavAttributeColumn(
+        Extended $grid,
+        string $objectFieldName,
+        string $label,
+        bool $customer = false,
+        bool $address = false,
+        bool $category = false,
+        bool $product = true)
+    {
+        $grid->addColumn($objectFieldName, [
+            'header'  => $label,
+            'type'    => 'options',
+            'index'   => $objectFieldName,
+            'options' => $this->sourceAttributes->toOptionsWithEntities($customer, $address, $category, $product)
+        ]);
+    }
+
+    /**
+     * @param \Tofex\BackendWidget\Block\Grid $grid
+     * @param string                          $valueFieldName
+     * @param string                          $attributeFieldName
+     * @param string                          $label
+     *
+     * @throws Exception
+     */
+    public function addEavAttributeValueColumn(
+        \Tofex\BackendWidget\Block\Grid $grid,
+        string $valueFieldName,
+        string $attributeFieldName,
+        string $label)
+    {
+        $objectFieldValueName = sprintf('%s_value', $valueFieldName);
+
+        $grid->addColumn($valueFieldName, [
+            'header'                    => $label,
+            'index'                     => $objectFieldValueName,
+            'type'                      => 'text',
+            'filter_condition_callback' => [$grid, 'filterEavAttributeOptionValue']
+        ]);
+
+        $grid->addJoinAttributeValues($valueFieldName, $attributeFieldName);
+    }
+
+    /**
+     * @param Extended $grid
+     * @param string   $objectFieldName
+     * @param string   $label
+     * @param bool     $customer
+     * @param bool     $address
+     * @param bool     $category
+     * @param bool     $product
+     *
+     * @throws Exception
+     */
+    public function addEavAttributeSetColumn(
+        Extended $grid,
+        string $objectFieldName,
+        string $label,
+        bool $customer = false,
+        bool $address = false,
+        bool $category = false,
+        bool $product = true)
+    {
+        $grid->addColumn($objectFieldName, [
+            'header'  => $label,
+            'type'    => 'options',
+            'index'   => $objectFieldName,
+            'options' => $this->sourceAttributeSets->toOptionsWithEntities($customer, $address, $category, $product)
+        ]);
+    }
+
+    /**
+     * @param Extended $grid
+     * @param string   $objectFieldName
+     * @param string   $label
+     * @param bool     $customer
+     * @param bool     $address
+     * @param bool     $category
+     * @param bool     $product
+     *
+     * @throws Exception
+     */
+    public function addEavEntityTypeColumn(
+        Extended $grid,
+        string $objectFieldName,
+        string $label,
+        bool $customer = false,
+        bool $address = false,
+        bool $category = false,
+        bool $product = true)
+    {
+        $grid->addColumn($objectFieldName, [
+            'header'  => $label,
+            'type'    => 'options',
+            'index'   => $objectFieldName,
+            'options' => $this->sourceEntityTypes->toOptionsWithEntities($customer, $address, $category, $product)
+        ]);
+    }
+
+    /**
+     * @param Extended $grid
+     * @param string   $objectFieldName
+     * @param string   $label
+     *
+     * @throws Exception
+     */
+    public function addProductAttributeCodeColumn(
+        Extended $grid,
+        string $objectFieldName,
+        string $label)
+    {
+        $this->addOptionsColumn($grid, $objectFieldName, $label, $this->sourceProductAttributeCode->toOptions());
+    }
+
+    /**
+     * @param Extended $grid
+     * @param string   $objectFieldName
+     * @param string   $label
+     *
+     * @throws Exception
+     */
+    public function addCustomerAttributeCodeColumn(
+        Extended $grid,
+        string $objectFieldName,
+        string $label)
+    {
+        $this->addOptionsColumn($grid, $objectFieldName, $label, $this->sourceCustomerAttributeCode->toOptions());
+    }
+
+    /**
+     * @param Extended $grid
+     * @param string   $objectFieldName
+     * @param string   $label
+     *
+     * @throws Exception
+     */
+    public function addAddressAttributeCodeColumn(
+        Extended $grid,
+        string $objectFieldName,
+        string $label)
+    {
+        $this->addOptionsColumn($grid, $objectFieldName, $label, $this->sourceAddressAttributeCode->toOptions());
     }
 }
