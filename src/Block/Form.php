@@ -132,9 +132,9 @@ abstract class Form
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getObjectField(): string
+    public function getObjectField(): ?string
     {
         return $this->objectField;
     }
@@ -489,7 +489,6 @@ abstract class Form
 
     /**
      * @param Fieldset    $fieldSet
-     * @param string      $objectRegistryKey
      * @param string      $objectFieldName
      * @param string      $label
      * @param string|null $defaultValue
@@ -499,7 +498,6 @@ abstract class Form
      */
     protected function addTypeIdField(
         Fieldset $fieldSet,
-        string $objectRegistryKey,
         string $objectFieldName,
         string $label,
         string $defaultValue = null,
@@ -507,7 +505,7 @@ abstract class Form
         bool $readOnly = false,
         bool $disabled = false)
     {
-        $this->formHelper->addTypeIdField($fieldSet, $objectRegistryKey, $objectFieldName, $label, $defaultValue,
+        $this->formHelper->addTypeIdField($fieldSet, $this->objectRegistryKey, $objectFieldName, $label, $defaultValue,
             $this->getObject(), $required, $readOnly, $disabled);
     }
 

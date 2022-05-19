@@ -81,7 +81,7 @@ class Wysiwyg
                     'disabled' => $disabled,
                     'class'    => 'add-image plugin',
                     'onclick'  => sprintf('MediabrowserUtility.openDialog(\'%s\')',
-                        $this->urlHelper->getBackendUrl('tofex_util/wysiwyg_images/index',
+                        $this->urlHelper->getBackendUrl('tofex_backendwidget/wysiwyg_images/index',
                             ['target_element_id' => $this->getHtmlId()]))
                 ]
             ]);

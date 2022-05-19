@@ -122,7 +122,10 @@ class Container
      */
     protected function _construct()
     {
-        $this->_objectId = $this->objectField;
+        if ($this->objectField) {
+            $this->_objectId = $this->objectField;
+        }
+
         $this->_blockGroup = $this->moduleKey;
         $this->_controller = sprintf('Adminhtml\%s', $this->objectName);
         $this->_mode = 'edit';
@@ -131,6 +134,10 @@ class Container
 
         $this->_headerText =
             sprintf('%s > %s', $this->objectTitle, $this->getObject()->getId() ? __('Edit') : __('Add'));
+
+        if ( ! $this->allowDelete) {
+            $this->removeButton('delete');
+        }
     }
 
     /**

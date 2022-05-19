@@ -997,9 +997,9 @@ abstract class Grid
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    protected function getObjectField(): string
+    protected function getObjectField(): ?string
     {
         return $this->objectField;
     }

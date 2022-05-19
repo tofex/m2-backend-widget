@@ -22,7 +22,7 @@ class MassAction
     {
         $parentBlock = $this->getParentBlock();
 
-        if ($parentBlock instanceof \Tofex\Util\Block\Backend\Widget\Grid) {
+        if ($parentBlock instanceof \Tofex\BackendWidget\Block\Grid) {
             if ( ! $this->getUseSelectAll()) {
                 return '';
             }
