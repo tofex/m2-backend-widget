@@ -1138,6 +1138,17 @@ abstract class Grid
     }
 
     /**
+     * @param string $objectFieldName
+     * @param string $label
+     *
+     * @throws Exception
+     */
+    public function addAttributeSortByColumn(string $objectFieldName, string $label)
+    {
+        $this->gridHelper->addAttributeSortByColumn($this, $objectFieldName, $label);
+    }
+
+    /**
      * @param string $valueFieldName
      * @param string $attributeFieldName
      */

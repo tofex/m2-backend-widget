@@ -17,6 +17,7 @@ use Tofex\Core\Model\Config\Source\Attribute;
 use Tofex\Core\Model\Config\Source\Attribute\AddressAttributeCode;
 use Tofex\Core\Model\Config\Source\Attribute\CustomerAttributeCode;
 use Tofex\Core\Model\Config\Source\Attribute\ProductAttributeCode;
+use Tofex\Core\Model\Config\Source\Attribute\SortBy;
 use Tofex\Core\Model\Config\Source\AttributeSet;
 use Tofex\Core\Model\Config\Source\Categories;
 use Tofex\Core\Model\Config\Source\CmsPage;
@@ -84,6 +85,9 @@ class Grid
     /** @var AddressAttributeCode */
     protected $sourceAddressAttributeCode;
 
+    /** @var SortBy */
+    protected $sourceAttributeSortBy;
+
     /** @var Collection */
     protected $customerGroupCollection;
 
@@ -105,6 +109,7 @@ class Grid
      * @param ProductAttributeCode  $sourceProductAttributeCode
      * @param CustomerAttributeCode $sourceCustomerAttributeCode
      * @param AddressAttributeCode  $sourceAddressAttributeCode
+     * @param SortBy                $sourceAttributeSortBy
      */
     public function __construct(
         Template $templateHelper,
@@ -123,7 +128,8 @@ class Grid
         EntityType $sourceEntityTypes,
         ProductAttributeCode $sourceProductAttributeCode,
         CustomerAttributeCode $sourceCustomerAttributeCode,
-        AddressAttributeCode $sourceAddressAttributeCode)
+        AddressAttributeCode $sourceAddressAttributeCode,
+        SortBy $sourceAttributeSortBy)
     {
         $this->templateHelper = $templateHelper;
         $this->variableHelper = $variableHelper;
@@ -143,6 +149,7 @@ class Grid
         $this->sourceProductAttributeCode = $sourceProductAttributeCode;
         $this->sourceCustomerAttributeCode = $sourceCustomerAttributeCode;
         $this->sourceAddressAttributeCode = $sourceAddressAttributeCode;
+        $this->sourceAttributeSortBy = $sourceAttributeSortBy;
 
         $this->customerGroupCollection = $this->customerHelper->getCustomerGroupCollection();
     }
@@ -965,5 +972,20 @@ class Grid
         string $label)
     {
         $this->addOptionsColumn($grid, $objectFieldName, $label, $this->sourceAddressAttributeCode->toOptions());
+    }
+
+    /**
+     * @param Extended $grid
+     * @param string   $objectFieldName
+     * @param string   $label
+     *
+     * @throws Exception
+     */
+    public function addAttributeSortByColumn(
+        Extended $grid,
+        string $objectFieldName,
+        string $label)
+    {
+        $this->addOptionsColumn($grid, $objectFieldName, $label, $this->sourceAttributeSortBy->toOptions());
     }
 }

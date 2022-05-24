@@ -906,4 +906,20 @@ abstract class Form
         $this->formHelper->addAddressAttributeCodeField($this->getObject(), $fieldSet, $this->objectRegistryKey,
             $objectFieldName, $label, $required);
     }
+
+    /**
+     * @param Fieldset $fieldSet
+     * @param string   $objectFieldName
+     * @param string   $label
+     * @param bool     $required
+     */
+    public function addAttributeSortByField(
+        Fieldset $fieldSet,
+        string $objectFieldName,
+        string $label,
+        bool $required = false)
+    {
+        $this->formHelper->addAttributeSortByField($this->getObject(), $fieldSet, $this->objectRegistryKey,
+            $objectFieldName, $label, $required);
+    }
 }

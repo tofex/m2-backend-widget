@@ -30,6 +30,7 @@ use Tofex\Core\Model\Config\Source\Attribute;
 use Tofex\Core\Model\Config\Source\Attribute\AddressAttributeCode;
 use Tofex\Core\Model\Config\Source\Attribute\CustomerAttributeCode;
 use Tofex\Core\Model\Config\Source\Attribute\ProductAttributeCode;
+use Tofex\Core\Model\Config\Source\Attribute\SortBy;
 use Tofex\Core\Model\Config\Source\AttributeSet;
 use Tofex\Core\Model\Config\Source\Categories;
 use Tofex\Core\Model\Config\Source\CmsBlock;
@@ -124,6 +125,9 @@ class Form
     /** @var AddressAttributeCode */
     protected $sourceAddressAttributeCode;
 
+    /** @var SortBy */
+    protected $sourceAttributeSortBy;
+
     /** @var Collection */
     protected $customerGroupCollection;
 
@@ -162,6 +166,7 @@ class Form
      * @param ProductAttributeCode                          $sourceProductAttributeCode
      * @param CustomerAttributeCode                         $sourceCustomerAttributeCode
      * @param AddressAttributeCode                          $sourceAddressAttributeCode
+     * @param SortBy                                        $sourceAttributeSortBy
      * @param TimezoneInterface                             $localeDate
      * @param Type                                          $productType
      * @param Config                                        $wysiwygConfig
@@ -192,6 +197,7 @@ class Form
         ProductAttributeCode $sourceProductAttributeCode,
         CustomerAttributeCode $sourceCustomerAttributeCode,
         AddressAttributeCode $sourceAddressAttributeCode,
+        SortBy $sourceAttributeSortBy,
         TimezoneInterface $localeDate,
         Type $productType,
         Config $wysiwygConfig)
@@ -222,6 +228,7 @@ class Form
         $this->sourceProductAttributeCode = $sourceProductAttributeCode;
         $this->sourceCustomerAttributeCode = $sourceCustomerAttributeCode;
         $this->sourceAddressAttributeCode = $sourceAddressAttributeCode;
+        $this->sourceAttributeSortBy = $sourceAttributeSortBy;
 
         $this->customerGroupCollection = $this->customerHelper->getCustomerGroupCollection();
         $this->dateFormatIso = $localeDate->getDateTimeFormat(IntlDateFormatter::MEDIUM);
@@ -1672,6 +1679,31 @@ class Form
             'label'    => $label,
             'value'    => $this->getFieldValue($objectRegistryKey, $objectFieldName, null, $object),
             'values'   => $this->sourceAddressAttributeCode->toOptionArray(),
+            'required' => $required
+        ]);
+    }
+
+    /**
+     * @param AbstractModel $object
+     * @param Fieldset      $fieldSet
+     * @param string        $objectRegistryKey
+     * @param string        $objectFieldName
+     * @param string        $label
+     * @param bool          $required
+     */
+    public function addAttributeSortByField(
+        AbstractModel $object,
+        Fieldset $fieldSet,
+        string $objectRegistryKey,
+        string $objectFieldName,
+        string $label,
+        bool $required = false)
+    {
+        $fieldSet->addField($objectFieldName, 'select', [
+            'name'     => $objectFieldName,
+            'label'    => $label,
+            'value'    => $this->getFieldValue($objectRegistryKey, $objectFieldName, null, $object),
+            'values'   => $this->sourceAttributeSortBy->toOptionArray(),
             'required' => $required
         ]);
     }
