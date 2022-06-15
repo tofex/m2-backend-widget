@@ -797,6 +797,7 @@ abstract class Form
      * @param string   $objectFieldName
      * @param string   $label
      * @param bool     $required
+     * @param bool     $multiSelect
      *
      * @throws Exception
      */
@@ -805,10 +806,11 @@ abstract class Form
         string $objectAttributeFieldName,
         string $objectFieldName,
         string $label,
-        bool $required = false)
+        bool $required = false,
+        bool $multiSelect = false)
     {
         $this->formHelper->addEavAttributeValueField($this->getObject(), $fieldSet, $this->objectRegistryKey,
-            $objectAttributeFieldName, $objectFieldName, $label, $required);
+            $objectAttributeFieldName, $objectFieldName, $label, $required, $multiSelect);
     }
 
     /**

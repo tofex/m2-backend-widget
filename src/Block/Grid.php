@@ -125,6 +125,9 @@ abstract class Grid
     /** @var array */
     private $joinAttributeValues = [];
 
+    /** @var array */
+    private $joinAttributeMultiValues = [];
+
     /**
      * @param Context                          $context
      * @param Data                             $backendHelper
@@ -251,6 +254,26 @@ abstract class Grid
                             $optionTableAlias, $optionValueTableAlias), [
                             sprintf('IF(%s.value IS NULL, main_table.%s, %s.value) as %s', $optionValueTableAlias,
                                 $valueColumnName, $optionValueTableAlias, $optionValueColumnName)
+                        ]);
+            }
+
+            foreach ($this->joinAttributeMultiValues as $valueColumnName => $attributeColumnName) {
+                $optionTableAlias = sprintf('eao_%s', $valueColumnName);
+                $optionValueTableAlias = sprintf('eaov_%s', $valueColumnName);
+                $optionValueColumnName = sprintf('%s_value', $valueColumnName);
+
+                $collection->getSelect()
+                    ->joinLeft([$optionTableAlias => $this->databaseHelper->getTableName('eav_attribute_option')],
+                        sprintf('%s.attribute_id = main_table.%s and FIND_IN_SET(%s.option_id, main_table.%s) > 0',
+                            $optionTableAlias, $attributeColumnName, $optionTableAlias, $valueColumnName), '');
+
+                $collection->getSelect()
+                    ->joinLeft([$optionValueTableAlias => $this->databaseHelper->getTableName('eav_attribute_option_value')],
+                        sprintf('%s.option_id = %s.option_id and %s.store_id = 0', $optionValueTableAlias,
+                            $optionTableAlias, $optionValueTableAlias), [
+                            sprintf('IF(%s.value IS NULL, main_table.%s, GROUP_CONCAT(%s.value)) as %s',
+                                $optionValueTableAlias, $valueColumnName, $optionValueTableAlias,
+                                $optionValueColumnName)
                         ]);
             }
         }
@@ -1050,12 +1073,17 @@ abstract class Grid
      * @param string $valueFieldName
      * @param string $attributeFieldName
      * @param string $label
+     * @param bool   $multiValue
      *
      * @throws Exception
      */
-    protected function addEavAttributeValueColumn(string $valueFieldName, string $attributeFieldName, string $label)
+    protected function addEavAttributeValueColumn(
+        string $valueFieldName,
+        string $attributeFieldName,
+        string $label,
+        bool $multiValue = false)
     {
-        $this->gridHelper->addEavAttributeValueColumn($this, $valueFieldName, $attributeFieldName, $label);
+        $this->gridHelper->addEavAttributeValueColumn($this, $valueFieldName, $attributeFieldName, $label, $multiValue);
     }
 
     /**
@@ -1155,6 +1183,15 @@ abstract class Grid
     public function addJoinAttributeValues(string $valueFieldName, string $attributeFieldName)
     {
         $this->joinAttributeValues[ $valueFieldName ] = $attributeFieldName;
+    }
+
+    /**
+     * @param string $valueFieldName
+     * @param string $attributeFieldName
+     */
+    public function addJoinAttributeMultiValues(string $valueFieldName, string $attributeFieldName)
+    {
+        $this->joinAttributeMultiValues[ $valueFieldName ] = $attributeFieldName;
     }
 
     /**

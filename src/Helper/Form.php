@@ -1504,6 +1504,7 @@ class Form
      * @param string        $objectFieldName
      * @param string        $label
      * @param bool          $required
+     * @param bool          $multiSelect
      *
      * @throws Exception
      */
@@ -1514,7 +1515,8 @@ class Form
         string $objectAttributeFieldName,
         string $objectFieldName,
         string $label,
-        bool $required = false)
+        bool $required = false,
+        bool $multiSelect = false)
     {
         $valueOptions = [];
 
@@ -1531,13 +1533,13 @@ class Form
         if ($this->variableHelper->isEmpty($valueOptions)) {
             $this->addTextField($fieldSet, $objectRegistryKey, $objectFieldName, $label, $object, $required);
         } else {
-            $fieldSet->addField($objectFieldName, 'select', [
-                'name'     => $objectFieldName,
-                'label'    => $label,
-                'value'    => $object->getDataUsingMethod($objectFieldName),
-                'values'   => $valueOptions,
-                'required' => $required
-            ]);
+            if ($multiSelect) {
+                $this->addOptionsMultiSelectField($fieldSet, $objectRegistryKey, $objectFieldName, $label,
+                    $valueOptions, null, $object, $required);
+            } else {
+                $this->addOptionsField($fieldSet, $objectRegistryKey, $objectFieldName, $label, $valueOptions, null,
+                    $object, $required);
+            }
         }
     }
 
@@ -1717,7 +1719,7 @@ class Form
     protected function getUpdateEavAttributeFormElementJs(string $sourceElementId, string $targetElementId): string
     {
         return sprintf('updateEavAttributeFormElement(\'%s\', \'%s\', \'%s\');',
-            urlencode($this->urlHelper->getBackendUrl('tofex_eav/attribute_option/values')), $sourceElementId,
+            urlencode($this->urlHelper->getBackendUrl('tofex_backendwidget/attribute_option/values')), $sourceElementId,
             $targetElementId);
     }
 }

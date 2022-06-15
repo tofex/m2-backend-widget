@@ -852,6 +852,7 @@ class Grid
      * @param string                          $valueFieldName
      * @param string                          $attributeFieldName
      * @param string                          $label
+     * @param bool                            $multiValue
      *
      * @throws Exception
      */
@@ -859,7 +860,8 @@ class Grid
         \Tofex\BackendWidget\Block\Grid $grid,
         string $valueFieldName,
         string $attributeFieldName,
-        string $label)
+        string $label,
+        bool $multiValue = false)
     {
         $objectFieldValueName = sprintf('%s_value', $valueFieldName);
 
@@ -870,7 +872,11 @@ class Grid
             'filter_condition_callback' => [$grid, 'filterEavAttributeOptionValue']
         ]);
 
-        $grid->addJoinAttributeValues($valueFieldName, $attributeFieldName);
+        if ($multiValue) {
+            $grid->addJoinAttributeMultiValues($valueFieldName, $attributeFieldName);
+        } else {
+            $grid->addJoinAttributeValues($valueFieldName, $attributeFieldName);
+        }
     }
 
     /**
