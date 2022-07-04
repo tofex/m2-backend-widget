@@ -1465,6 +1465,7 @@ class Form
      * @param string        $label
      * @param array         $targetFieldNames
      * @param bool          $required
+     * @param bool          $multiSelect
      */
     public function addEavAttributeFieldWithUpdate(
         AbstractModel $object,
@@ -1474,7 +1475,8 @@ class Form
         string $objectFieldName,
         string $label,
         array $targetFieldNames,
-        bool $required = false)
+        bool $required = false,
+        bool $multiSelect = false)
     {
         $onChangeFieldId = sprintf('%s_%s', $objectName, $objectFieldName);
 
@@ -1483,7 +1485,7 @@ class Form
         foreach ($targetFieldNames as $targetFieldName) {
             $targetFieldId = sprintf('%s_%s', $objectName, $targetFieldName);
 
-            $onChange[] = $this->getUpdateEavAttributeFormElementJs($onChangeFieldId, $targetFieldId);
+            $onChange[] = $this->getUpdateEavAttributeFormElementJs($onChangeFieldId, $targetFieldId, $multiSelect);
         }
 
         $fieldSet->addField($objectFieldName, 'select', [
@@ -1713,13 +1715,14 @@ class Form
     /**
      * @param string $sourceElementId
      * @param string $targetElementId
+     * @param bool   $multiSelect
      *
      * @return string
      */
-    protected function getUpdateEavAttributeFormElementJs(string $sourceElementId, string $targetElementId): string
+    protected function getUpdateEavAttributeFormElementJs(string $sourceElementId, string $targetElementId, bool $multiSelect = false): string
     {
-        return sprintf('updateEavAttributeFormElement(\'%s\', \'%s\', \'%s\');',
+        return sprintf('updateEavAttributeFormElement(\'%s\', \'%s\', \'%s\', %s);',
             urlencode($this->urlHelper->getBackendUrl('tofex_backendwidget/attribute_option/values')), $sourceElementId,
-            $targetElementId);
+            $targetElementId, var_export($multiSelect, true));
     }
 }

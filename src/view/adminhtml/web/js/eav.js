@@ -5,7 +5,7 @@
  * @copyright   Copyright (c) 2014-2022 Tofex UG (http://www.tofex.de)
  * @license     http://www.opensource.org/licenses/mit-license.php MIT
  */
-function updateEavAttributeFormElement(targetElementUrl, sourceElementId, targetElementId) {
+function updateEavAttributeFormElement(targetElementUrl, sourceElementId, targetElementId, multiSelect) {
     require(['jquery'], function ($) {
         var sourceElement = $('#' + sourceElementId).get(0);
         var sourceElementValue = sourceElement.options[sourceElement.selectedIndex].value;
@@ -22,8 +22,15 @@ function updateEavAttributeFormElement(targetElementUrl, sourceElementId, target
                         if (targetElement.type === 'text') {
                             replaceTargetElement = document.createElement('select');
                             replaceTargetElement.setAttribute('id', targetElement.getAttribute('id'));
-                            replaceTargetElement.setAttribute('name', targetElement.getAttribute('name'));
-                            replaceTargetElement.setAttribute('class', targetElement.getAttribute('class').replace(/input-text/, 'select').replace(/admin__control-text/, 'admin__control-select'));
+                            if (multiSelect) {
+                                replaceTargetElement.setAttribute('multiple', 'multiple');
+                                replaceTargetElement.setAttribute('size', '10');
+                                replaceTargetElement.setAttribute('name', targetElement.getAttribute('name') + '[]');
+                                replaceTargetElement.setAttribute('class', targetElement.getAttribute('class').replace(/input-text/, 'select multiselect').replace(/admin__control-text/, 'admin__control-multiselect'));
+                            } else {
+                                replaceTargetElement.setAttribute('name', targetElement.getAttribute('name'));
+                                replaceTargetElement.setAttribute('class', targetElement.getAttribute('class').replace(/input-text/, 'select').replace(/admin__control-text/, 'admin__control-select'));
+                            }
                             replaceTargetElement.setAttribute('data-ui-id', targetElement.getAttribute('data-ui-id').replace(/element-text/, 'element-select'));
                             targetElement.replaceWith(replaceTargetElement);
                             targetElement = replaceTargetElement;

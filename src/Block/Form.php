@@ -779,16 +779,18 @@ abstract class Form
      * @param string   $label
      * @param array    $targetFieldNames
      * @param bool     $required
+     * @param bool     $multiSelect
      */
     protected function addEavAttributeFieldWithUpdate(
         Fieldset $fieldSet,
         string $objectFieldName,
         string $label,
         array $targetFieldNames,
-        bool $required = false)
+        bool $required = false,
+        bool $multiSelect = false)
     {
         $this->formHelper->addEavAttributeFieldWithUpdate($this->getObject(), $this->objectName, $fieldSet,
-            $this->objectRegistryKey, $objectFieldName, $label, $targetFieldNames, $required);
+            $this->objectRegistryKey, $objectFieldName, $label, $targetFieldNames, $required, $multiSelect);
     }
 
     /**
