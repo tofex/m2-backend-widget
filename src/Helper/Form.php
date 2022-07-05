@@ -1694,6 +1694,7 @@ class Form
      * @param string        $objectFieldName
      * @param string        $label
      * @param bool          $required
+     * @param bool          $multiSelect
      */
     public function addAttributeSortByField(
         AbstractModel $object,
@@ -1701,9 +1702,10 @@ class Form
         string $objectRegistryKey,
         string $objectFieldName,
         string $label,
-        bool $required = false)
+        bool $required = false,
+        bool $multiSelect = false)
     {
-        $fieldSet->addField($objectFieldName, 'select', [
+        $fieldSet->addField($objectFieldName, $multiSelect ? 'multiselect' : 'select', [
             'name'     => $objectFieldName,
             'label'    => $label,
             'value'    => $this->getFieldValue($objectRegistryKey, $objectFieldName, null, $object),
@@ -1719,7 +1721,10 @@ class Form
      *
      * @return string
      */
-    protected function getUpdateEavAttributeFormElementJs(string $sourceElementId, string $targetElementId, bool $multiSelect = false): string
+    protected function getUpdateEavAttributeFormElementJs(
+        string $sourceElementId,
+        string $targetElementId,
+        bool $multiSelect = false): string
     {
         return sprintf('updateEavAttributeFormElement(\'%s\', \'%s\', \'%s\', %s);',
             urlencode($this->urlHelper->getBackendUrl('tofex_backendwidget/attribute_option/values')), $sourceElementId,

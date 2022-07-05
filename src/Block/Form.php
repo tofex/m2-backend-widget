@@ -916,14 +916,16 @@ abstract class Form
      * @param string   $objectFieldName
      * @param string   $label
      * @param bool     $required
+     * @param bool     $multiSelect
      */
     public function addAttributeSortByField(
         Fieldset $fieldSet,
         string $objectFieldName,
         string $label,
-        bool $required = false)
+        bool $required = false,
+        bool $multiSelect = false)
     {
         $this->formHelper->addAttributeSortByField($this->getObject(), $fieldSet, $this->objectRegistryKey,
-            $objectFieldName, $label, $required);
+            $objectFieldName, $label, $required, $multiSelect);
     }
 }
