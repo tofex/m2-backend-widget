@@ -63,9 +63,9 @@ class Wysiwyg
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getAfterElementHtml(): string
+    public function getAfterElementHtml(): ?string
     {
         $html = parent::getAfterElementHtml();
 
