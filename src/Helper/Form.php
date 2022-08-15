@@ -41,7 +41,6 @@ use Tofex\Core\Model\Config\Source\Payment\ActiveMethods;
 use Tofex\Core\Model\Config\Source\TypeId;
 use Tofex\Help\Arrays;
 use Tofex\Help\Variables;
-use Zend\Stdlib\Parameters;
 
 /**
  * @author      Andreas Knollmann
@@ -296,14 +295,14 @@ class Form
     public function getFieldValue(
         string $objectRegistryKey,
         string $objectFieldName,
-        $defaultValue,
+        $defaultValue = null,
         AbstractModel $object = null,
         string $splitObjectValueSeparator = null)
     {
         $formData = $this->adminhtmlSession->getData(sprintf('%s_form_%s', $objectRegistryKey,
             $object && $object->getId() ? $object->getId() : 'add'));
 
-        if ($formData instanceof Parameters) {
+        if (is_object($formData) && method_exists($formData, 'toArray')) {
             $formData = $formData->toArray();
         }
 
@@ -1729,5 +1728,43 @@ class Form
         return sprintf('updateEavAttributeFormElement(\'%s\', \'%s\', \'%s\', %s);',
             urlencode($this->urlHelper->getBackendUrl('tofex_backendwidget/attribute_option/values')), $sourceElementId,
             $targetElementId, var_export($multiSelect, true));
+    }
+
+    /**
+     * @param Fieldset           $fieldSet
+     * @param string             $objectRegistryKey
+     * @param string             $objectFieldName
+     * @param string             $label
+     * @param mixed              $value
+     * @param AbstractModel|null $object
+     * @param bool               $disabled
+     * @param mixed              $after
+     */
+    public function addCheckboxField(
+        Fieldset $fieldSet,
+        string $objectRegistryKey,
+        string $objectFieldName,
+        string $label,
+        $value,
+        AbstractModel $object = null,
+        bool $disabled = false,
+        $after = false)
+    {
+        $fieldValue = $this->getFieldValue($objectRegistryKey, $objectFieldName, null, $object);
+
+        $config = [
+            'name'      => $objectFieldName,
+            'label'     => $label,
+            'title'     => $label,
+            'value'     => $value,
+            'checked'   => $fieldValue == $value,
+            'css_class' => 'admin__field-checkbox'
+        ];
+
+        if ($disabled) {
+            $config[ 'disabled' ] = true;
+        }
+
+        $fieldSet->addField($objectFieldName, 'checkbox', $config, $after);
     }
 }

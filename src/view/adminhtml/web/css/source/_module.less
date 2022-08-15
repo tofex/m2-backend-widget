@@ -1,0 +1,42 @@
+//noinspection LessUnresolvedVariable
+& when (@media-common = true) {
+    .form-inline {
+        .admin__fieldset {
+            .admin__field-checkbox {
+                .admin__field-control {
+                    line-height: 3.2rem;
+
+                    //noinspection CssNoGenericFontName
+                    input:before {
+                        content: '';
+                        width: 1.6rem;
+                        height: 1.6rem;
+                        float: left;
+                        background-color: #ffffff;
+                        border-radius: 1px;
+                        border: 1px solid #adadad;
+                        vertical-align: top;
+                        text-align: center;
+                        font-family: 'Admin Icons';
+                        font-size: 0;
+                        line-height: 1;
+                        font-style: normal;
+                        font-weight: normal;
+                        color: transparent;
+                        transition: font-size 0.1s ease-out, color 0.1s ease-out, border-color 0.1s linear;
+                        -webkit-font-smoothing: antialiased;
+                        speak: none;
+                        cursor: pointer;
+                    }
+
+                    input:checked:before {
+                        content: '\e62d';
+                        font-size: 1.1rem;
+                        line-height: 125%;
+                        color: #514943;
+                    }
+                }
+            }
+        }
+    }
+}

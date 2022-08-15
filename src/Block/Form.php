@@ -928,4 +928,24 @@ abstract class Form
         $this->formHelper->addAttributeSortByField($this->getObject(), $fieldSet, $this->objectRegistryKey,
             $objectFieldName, $label, $required, $multiSelect);
     }
+
+    /**
+     * @param Fieldset $fieldSet
+     * @param string   $objectFieldName
+     * @param string   $label
+     * @param array    $options
+     * @param mixed    $value
+     * @param bool     $disabled
+     */
+    protected function addCheckboxField(
+        Fieldset $fieldSet,
+        string $objectFieldName,
+        string $label,
+        array $options,
+        $value,
+        bool $disabled = false)
+    {
+        $this->formHelper->addCheckboxField($fieldSet, $this->objectRegistryKey, $objectFieldName, $label, $value,
+            $this->getObject(), $disabled);
+    }
 }
