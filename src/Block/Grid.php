@@ -13,6 +13,7 @@ use Magento\Eav\Model\Config;
 use Magento\Framework\Data\Collection;
 use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\DataObject;
+use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;
@@ -93,6 +94,12 @@ abstract class Grid
     protected $editUrlParams;
 
     /** @var string */
+    protected $viewUrlRoute;
+
+    /** @var array */
+    protected $viewUrlParams;
+
+    /** @var string */
     protected $deleteUrlRoute;
 
     /** @var array */
@@ -165,6 +172,8 @@ abstract class Grid
         $this->gridUrlParams = $arrayHelper->getValue($data, 'grid_url_params', []);
         $this->editUrlRoute = $arrayHelper->getValue($data, 'edit_url_route', '*/*/edit');
         $this->editUrlParams = $arrayHelper->getValue($data, 'edit_url_params', []);
+        $this->viewUrlRoute = $arrayHelper->getValue($data, 'view_url_route', '*/*/view');
+        $this->viewUrlParams = $arrayHelper->getValue($data, 'view_url_params', []);
         $this->deleteUrlRoute = $arrayHelper->getValue($data, 'delete_url_route', '*/*/delete');
         $this->deleteUrlParams = $arrayHelper->getValue($data, 'delete_url_params', []);
         $this->massDeleteUrlRoute = $arrayHelper->getValue($data, 'mass_delete_url_route', '*/*/massDelete');
@@ -186,6 +195,7 @@ abstract class Grid
 
     /**
      * @return void
+     * @throws FileSystemException
      */
     public function _construct()
     {
@@ -846,7 +856,7 @@ abstract class Grid
         if ($this->allowEdit) {
             $this->addAction('edit', __('Edit'), $this->editUrlRoute, false, $this->editUrlParams);
         } else if ($this->allowView) {
-            $this->addAction('view', __('View'), $this->editUrlRoute, false, $this->editUrlParams);
+            $this->addAction('view', __('View'), $this->viewUrlRoute, false, $this->viewUrlParams);
         }
 
         if ($this->allowDelete) {
@@ -918,7 +928,12 @@ abstract class Grid
 
         $editUrlParams[ $objectField ] = $item->getData($objectField);
 
-        return $this->allowEdit || $this->allowView ? $this->getUrl($this->editUrlRoute, $editUrlParams) : false;
+        $viewUrlParams = $this->viewUrlParams;
+
+        $viewUrlParams[ $objectField ] = $item->getData($objectField);
+
+        return $this->allowEdit ? $this->getUrl($this->editUrlRoute, $editUrlParams) :
+            ($this->allowView ? $this->getUrl($this->viewUrlRoute, $viewUrlParams) : false);
     }
 
     /**

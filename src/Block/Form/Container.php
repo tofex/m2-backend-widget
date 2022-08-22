@@ -49,7 +49,7 @@ class Container
     protected $allowEdit = true;
 
     /** @var bool */
-    protected $allowView = true;
+    protected $allowView = false;
 
     /** @var bool */
     protected $allowDelete = true;
@@ -104,7 +104,7 @@ class Container
         $this->objectTitle = $arrayHelper->getValue($data, 'title', 'Container Widget Header');
         $this->allowAdd = $arrayHelper->getValue($data, 'allow_add', true);
         $this->allowEdit = $arrayHelper->getValue($data, 'allow_edit', true);
-        $this->allowView = $arrayHelper->getValue($data, 'allow_view', true);
+        $this->allowView = $arrayHelper->getValue($data, 'allow_view', false);
         $this->allowDelete = $arrayHelper->getValue($data, 'allow_delete', true);
         $this->allowExport = $arrayHelper->getValue($data, 'allow_export', true);
         $this->saveUrlRoute = $arrayHelper->getValue($data, 'save_url_route', '*/*/save');
@@ -132,8 +132,17 @@ class Container
 
         parent::_construct();
 
-        $this->_headerText =
-            sprintf('%s > %s', $this->objectTitle, $this->getObject()->getId() ? __('Edit') : __('Add'));
+        if ($this->allowEdit) {
+            $this->_headerText =
+                sprintf('%s > %s', $this->objectTitle, $this->getObject()->getId() ? __('Edit') : __('Add'));
+        } else if ($this->allowView) {
+            $this->_headerText = sprintf('%s > %s', $this->objectTitle, __('View'));
+        }
+
+        if ( ! $this->allowEdit) {
+            $this->removeButton('reset');
+            $this->removeButton('save');
+        }
 
         if ( ! $this->allowDelete) {
             $this->removeButton('delete');
@@ -159,12 +168,12 @@ class Container
     protected function _prepareLayout(): AbstractBlock
     {
         if ($this->_blockGroup && $this->_controller) {
-            $blockClassName = sprintf('%s\Block\%s\%s\Form', str_replace('_', '\\', $this->_blockGroup),
-                str_replace('_', '\\', $this->_controller), ucfirst($this->_mode));
+            $blockClassName = sprintf('%s\Block\%s\%s\%s', str_replace('_', '\\', $this->_blockGroup),
+                str_replace('_', '\\', $this->_controller), ucfirst($this->_mode), $this->allowEdit ? 'Form' : 'View');
 
             if ( ! class_exists($blockClassName)) {
-                $blockClassName = sprintf('%s\Block\%s\Form', str_replace('_', '\\', $this->_blockGroup),
-                    str_replace('_', '\\', $this->_controller));
+                $blockClassName = sprintf('%s\Block\%s\%s', str_replace('_', '\\', $this->_blockGroup),
+                    str_replace('_', '\\', $this->_controller), $this->allowEdit ? 'Form' : 'View');
             }
 
             if ( ! class_exists($blockClassName)) {
@@ -179,7 +188,10 @@ class Container
                     'object_field'        => $this->objectField,
                     'object_registry_key' => $this->objectRegistryKey,
                     'save_url_route'      => $this->saveUrlRoute,
-                    'save_url_params'     => $this->saveUrlParams
+                    'save_url_params'     => $this->saveUrlParams,
+                    'allow_add'           => $this->allowAdd,
+                    'allow_edit'          => $this->allowEdit,
+                    'allow_view'          => $this->allowView
                 ]
             ]);
 

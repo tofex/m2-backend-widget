@@ -97,7 +97,11 @@ abstract class Edit
 
         $this->_addContent($block);
 
-        $this->finishAction($object->getId() ? __('Edit') : __('Add'));
+        if ($this->allowEdit()) {
+            $this->finishAction($object->getId() ? __('Edit') : __('Add'));
+        } else if ($this->allowView()) {
+            $this->finishAction(__('View'));
+        }
 
         return $this->_view->getPage();
     }

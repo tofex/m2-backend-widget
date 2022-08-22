@@ -55,6 +55,8 @@ abstract class Index
                 'grid_url_params'        => $this->getGridUrlParams(),
                 'edit_url_route'         => $this->getEditUrlRoute(),
                 'edit_url_params'        => $this->getEditUrlParams(),
+                'view_url_route'         => $this->getViewUrlRoute(),
+                'view_url_params'        => $this->getViewUrlParams(),
                 'delete_url_route'       => $this->getDeleteUrlRoute(),
                 'delete_url_params'      => $this->getDeleteUrlParams(),
                 'mass_delete_url_route'  => $this->getMassDeleteUrlRoute(),
@@ -149,6 +151,22 @@ abstract class Index
      * @return array
      */
     protected function getEditUrlParams(): array
+    {
+        return [];
+    }
+
+    /**
+     * @return string
+     */
+    protected function getViewUrlRoute(): string
+    {
+        return '*/*/view';
+    }
+
+    /**
+     * @return array
+     */
+    protected function getViewUrlParams(): array
     {
         return [];
     }

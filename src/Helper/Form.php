@@ -15,12 +15,14 @@ use Magento\Customer\Model\ResourceModel\Group\Collection;
 use Magento\Directory\Model\Config\Source\Country;
 use Magento\Framework\Data\Form\Element\Fieldset;
 use Magento\Framework\Data\FormFactory;
+use Magento\Framework\Escaper;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Magento\Framework\View\LayoutInterface;
 use Magento\Store\Model\System\Store;
 use Tofex\BackendWidget\Block\Config\Form\DateIso;
+use Tofex\BackendWidget\Block\Config\Form\Value;
 use Tofex\BackendWidget\Block\Config\Form\Wysiwyg;
 use Tofex\BackendWidget\Model\Backend\Session;
 use Tofex\Core\Helper\Customer;
@@ -139,6 +141,9 @@ class Form
     /** @var Config */
     protected $wysiwygConfig;
 
+    /** @var Escaper */
+    protected $escaper;
+
     /**
      * @param Variables                                     $variableHelper
      * @param Arrays                                        $arrayHelper
@@ -169,6 +174,7 @@ class Form
      * @param TimezoneInterface                             $localeDate
      * @param Type                                          $productType
      * @param Config                                        $wysiwygConfig
+     * @param Escaper                                       $escaper
      */
     public function __construct(
         Variables $variableHelper,
@@ -199,7 +205,8 @@ class Form
         SortBy $sourceAttributeSortBy,
         TimezoneInterface $localeDate,
         Type $productType,
-        Config $wysiwygConfig)
+        Config $wysiwygConfig,
+        Escaper $escaper)
     {
         $this->variableHelper = $variableHelper;
         $this->arrayHelper = $arrayHelper;
@@ -233,6 +240,7 @@ class Form
         $this->dateFormatIso = $localeDate->getDateTimeFormat(IntlDateFormatter::MEDIUM);
         $this->productType = $productType;
         $this->wysiwygConfig = $wysiwygConfig;
+        $this->escaper = $escaper;
     }
 
     /**
@@ -358,10 +366,20 @@ class Form
 
         if ($readOnly) {
             $config[ 'readonly' ] = true;
+            if (array_key_exists('css_class', $config)) {
+                $config[ 'css_class' ] .= ' read-only';
+            } else {
+                $config[ 'css_class' ] = 'read-only';
+            }
         }
 
         if ($disabled) {
             $config[ 'disabled' ] = true;
+            if (array_key_exists('css_class', $config)) {
+                $config[ 'css_class' ] .= ' disabled';
+            } else {
+                $config[ 'css_class' ] = 'disabled';
+            }
         }
 
         $fieldSet->addField($objectFieldName, 'text', $config, $after);
@@ -422,10 +440,20 @@ class Form
 
         if ($readOnly) {
             $config[ 'readonly' ] = true;
+            if (array_key_exists('css_class', $config)) {
+                $config[ 'css_class' ] .= ' read-only';
+            } else {
+                $config[ 'css_class' ] = 'read-only';
+            }
         }
 
         if ($disabled) {
             $config[ 'disabled' ] = true;
+            if (array_key_exists('css_class', $config)) {
+                $config[ 'css_class' ] .= ' disabled';
+            } else {
+                $config[ 'css_class' ] = 'disabled';
+            }
         }
 
         $fieldSet->addField($objectFieldName, 'textarea', $config);
@@ -463,10 +491,20 @@ class Form
 
         if ($readOnly) {
             $config[ 'readonly' ] = true;
+            if (array_key_exists('css_class', $config)) {
+                $config[ 'css_class' ] .= ' read-only';
+            } else {
+                $config[ 'css_class' ] = 'read-only';
+            }
         }
 
         if ($disabled) {
             $config[ 'disabled' ] = true;
+            if (array_key_exists('css_class', $config)) {
+                $config[ 'css_class' ] .= ' disabled';
+            } else {
+                $config[ 'css_class' ] = 'disabled';
+            }
         }
 
         $fieldSet->addField($objectFieldName, 'textarea', $config);
@@ -509,10 +547,20 @@ class Form
 
         if ($readOnly) {
             $config[ 'readonly' ] = true;
+            if (array_key_exists('css_class', $config)) {
+                $config[ 'css_class' ] .= ' read-only';
+            } else {
+                $config[ 'css_class' ] = 'read-only';
+            }
         }
 
         if ($disabled) {
             $config[ 'disabled' ] = true;
+            if (array_key_exists('css_class', $config)) {
+                $config[ 'css_class' ] .= ' disabled';
+            } else {
+                $config[ 'css_class' ] = 'disabled';
+            }
         }
 
         $fieldSet->addField($objectFieldName, 'select', $config, $after);
@@ -553,10 +601,20 @@ class Form
 
         if ($readOnly) {
             $config[ 'readonly' ] = true;
+            if (array_key_exists('css_class', $config)) {
+                $config[ 'css_class' ] .= ' read-only';
+            } else {
+                $config[ 'css_class' ] = 'read-only';
+            }
         }
 
         if ($disabled) {
             $config[ 'disabled' ] = true;
+            if (array_key_exists('css_class', $config)) {
+                $config[ 'css_class' ] .= ' disabled';
+            } else {
+                $config[ 'css_class' ] = 'disabled';
+            }
         }
 
         $fieldSet->addField($objectFieldName, 'multiselect', $config);
@@ -670,10 +728,20 @@ class Form
 
         if ($readOnly) {
             $config[ 'readonly' ] = true;
+            if (array_key_exists('css_class', $config)) {
+                $config[ 'css_class' ] .= ' read-only';
+            } else {
+                $config[ 'css_class' ] = 'read-only';
+            }
         }
 
         if ($disabled) {
             $config[ 'disabled' ] = true;
+            if (array_key_exists('css_class', $config)) {
+                $config[ 'css_class' ] .= ' disabled';
+            } else {
+                $config[ 'css_class' ] = 'disabled';
+            }
         }
 
         $fieldSet->addField('website_id', 'select', $config);
@@ -731,10 +799,20 @@ class Form
 
         if ($readOnly) {
             $config[ 'readonly' ] = true;
+            if (array_key_exists('css_class', $config)) {
+                $config[ 'css_class' ] .= ' read-only';
+            } else {
+                $config[ 'css_class' ] = 'read-only';
+            }
         }
 
         if ($disabled) {
             $config[ 'disabled' ] = true;
+            if (array_key_exists('css_class', $config)) {
+                $config[ 'css_class' ] .= ' disabled';
+            } else {
+                $config[ 'css_class' ] = 'disabled';
+            }
         }
 
         $fieldSet->addField('website_id', 'multiselect', $config);
@@ -777,10 +855,20 @@ class Form
 
         if ($readOnly) {
             $config[ 'readonly' ] = true;
+            if (array_key_exists('css_class', $config)) {
+                $config[ 'css_class' ] .= ' read-only';
+            } else {
+                $config[ 'css_class' ] = 'read-only';
+            }
         }
 
         if ($disabled) {
             $config[ 'disabled' ] = true;
+            if (array_key_exists('css_class', $config)) {
+                $config[ 'css_class' ] .= ' disabled';
+            } else {
+                $config[ 'css_class' ] = 'disabled';
+            }
         }
 
         $field = $fieldSet->addField($objectFieldName, 'multiselect', $config);
@@ -850,10 +938,20 @@ class Form
 
         if ($readOnly) {
             $config[ 'readonly' ] = true;
+            if (array_key_exists('css_class', $config)) {
+                $config[ 'css_class' ] .= ' read-only';
+            } else {
+                $config[ 'css_class' ] = 'read-only';
+            }
         }
 
         if ($disabled) {
             $config[ 'disabled' ] = true;
+            if (array_key_exists('css_class', $config)) {
+                $config[ 'css_class' ] .= ' disabled';
+            } else {
+                $config[ 'css_class' ] = 'disabled';
+            }
         }
 
         $field = $fieldSet->addField($objectFieldName, 'multiselect', $config);
@@ -903,10 +1001,20 @@ class Form
 
         if ($readOnly) {
             $config[ 'readonly' ] = true;
+            if (array_key_exists('css_class', $config)) {
+                $config[ 'css_class' ] .= ' read-only';
+            } else {
+                $config[ 'css_class' ] = 'read-only';
+            }
         }
 
         if ($disabled) {
             $config[ 'disabled' ] = true;
+            if (array_key_exists('css_class', $config)) {
+                $config[ 'css_class' ] .= ' disabled';
+            } else {
+                $config[ 'css_class' ] = 'disabled';
+            }
         }
 
         $field = $fieldSet->addField($objectFieldName, 'select', $config);
@@ -1109,10 +1217,20 @@ class Form
 
         if ($readOnly) {
             $config[ 'readonly' ] = true;
+            if (array_key_exists('css_class', $config)) {
+                $config[ 'css_class' ] .= ' read-only';
+            } else {
+                $config[ 'css_class' ] = 'read-only';
+            }
         }
 
         if ($disabled) {
             $config[ 'disabled' ] = true;
+            if (array_key_exists('css_class', $config)) {
+                $config[ 'css_class' ] .= ' disabled';
+            } else {
+                $config[ 'css_class' ] = 'disabled';
+            }
         }
 
         $fieldSet->addField($objectFieldName, 'date_iso', $config);
@@ -1335,10 +1453,20 @@ class Form
 
         if ($readOnly) {
             $config[ 'readonly' ] = true;
+            if (array_key_exists('css_class', $config)) {
+                $config[ 'css_class' ] .= ' read-only';
+            } else {
+                $config[ 'css_class' ] = 'read-only';
+            }
         }
 
         if ($disabled) {
             $config[ 'disabled' ] = true;
+            if (array_key_exists('css_class', $config)) {
+                $config[ 'css_class' ] .= ' disabled';
+            } else {
+                $config[ 'css_class' ] = 'disabled';
+            }
         }
 
         $fieldSet->addField($objectFieldName, 'apply', $config);
@@ -1763,8 +1891,116 @@ class Form
 
         if ($disabled) {
             $config[ 'disabled' ] = true;
+            if (array_key_exists('css_class', $config)) {
+                $config[ 'css_class' ] .= ' disabled';
+            } else {
+                $config[ 'css_class' ] = 'disabled';
+            }
         }
 
         $fieldSet->addField($objectFieldName, 'checkbox', $config, $after);
+    }
+
+    /**
+     * @param Fieldset           $fieldSet
+     * @param string             $objectRegistryKey
+     * @param string             $objectFieldName
+     * @param string             $label
+     * @param AbstractModel|null $object
+     * @param mixed              $after
+     */
+    public function addValueField(
+        Fieldset $fieldSet,
+        string $objectRegistryKey,
+        string $objectFieldName,
+        string $label,
+        AbstractModel $object = null,
+        $after = false)
+    {
+        $fieldSet->addType('value', Value::class);
+
+        $config = [
+            'name'     => $objectFieldName,
+            'label'    => $label,
+            'value'    => $this->getFieldValue($objectRegistryKey, $objectFieldName, '', $object),
+            'required' => false
+        ];
+
+        $fieldSet->addField($objectFieldName, 'value', $config, $after);
+    }
+
+    /**
+     * @param Fieldset $fieldSet
+     * @param string   $objectFieldName
+     * @param string   $label
+     * @param string   $value
+     * @param mixed    $onClick
+     * @param mixed    $dataMageInit
+     */
+    public function addButtonField(
+        Fieldset $fieldSet,
+        string $objectFieldName,
+        string $label,
+        string $value,
+        $onClick = null,
+        $dataMageInit = null)
+    {
+        $config = [
+            'name'  => $objectFieldName,
+            'label' => $label,
+            'value' => $value,
+            'css_class' => 'admin__field-button'
+        ];
+
+        if ($dataMageInit) {
+            $config[ 'onclick' ] = $onClick;
+        }
+
+        if ($dataMageInit) {
+            $config[ 'data-mage-init' ] = $dataMageInit;
+        }
+
+        $fieldSet->addField($objectFieldName, 'button', $config);
+    }
+
+    /**
+     * @param Fieldset           $fieldSet
+     * @param string             $objectName
+     * @param string             $objectField
+     * @param string             $objectFieldName
+     * @param string             $label
+     * @param string             $value
+     * @param string             $urlPath
+     * @param array              $urlParameters
+     * @param AbstractModel|null $object
+     */
+    public function addIframeButtonField(
+        Fieldset $fieldSet,
+        string $objectName,
+        string $objectField,
+        string $objectFieldName,
+        string $label,
+        string $value,
+        string $urlPath,
+        array $urlParameters = [],
+        AbstractModel $object = null)
+    {
+        if ($object) {
+            $objectId = $object->getDataUsingMethod($objectField);
+
+            if ($objectId) {
+                $urlParameters[$objectField] = $objectId;
+            }
+        }
+
+        $dataMageInit = $this->escaper->escapeHtml(json_encode([
+            'tofex/iframe-button' => [
+                'buttonId' => sprintf('%s_%s', $objectName, $objectFieldName),
+                'src'      => $this->urlHelper->getBackendUrl($urlPath, $urlParameters),
+                'title'    => $label
+            ],
+        ]));
+
+        $this->addButtonField($fieldSet, $objectFieldName, $label, $value, null, $dataMageInit);
     }
 }

@@ -61,6 +61,12 @@ class Container
     protected $editUrlParams;
 
     /** @var string */
+    protected $viewUrlRoute;
+
+    /** @var array */
+    protected $viewUrlParams;
+
+    /** @var string */
     protected $deleteUrlRoute;
 
     /** @var array */
@@ -106,6 +112,8 @@ class Container
         $this->gridUrlParams = $arrayHelper->getValue($data, 'grid_url_params', []);
         $this->editUrlRoute = $arrayHelper->getValue($data, 'edit_url_route', '*/*/edit');
         $this->editUrlParams = $arrayHelper->getValue($data, 'edit_url_params', []);
+        $this->viewUrlRoute = $arrayHelper->getValue($data, 'view_url_route', '*/*/view');
+        $this->viewUrlParams = $arrayHelper->getValue($data, 'view_url_params', []);
         $this->deleteUrlRoute = $arrayHelper->getValue($data, 'delete_url_route', '*/*/delete');
         $this->deleteUrlParams = $arrayHelper->getValue($data, 'delete_url_params', []);
         $this->massDeleteUrlRoute = $arrayHelper->getValue($data, 'mass_delete_url_route', '*/*/massDelete');
@@ -158,6 +166,8 @@ class Container
                 'grid_url_params'        => $this->gridUrlParams,
                 'edit_url_route'         => $this->editUrlRoute,
                 'edit_url_params'        => $this->editUrlParams,
+                'view_url_route'         => $this->viewUrlRoute,
+                'view_url_params'        => $this->viewUrlParams,
                 'delete_url_route'       => $this->deleteUrlRoute,
                 'delete_url_params'      => $this->deleteUrlParams,
                 'mass_delete_url_route'  => $this->massDeleteUrlRoute,

@@ -44,8 +44,23 @@ abstract class Form
     /** @var array */
     protected $saveUrlParams;
 
+    /** @var bool */
+    protected $allowAdd = true;
+
+    /** @var bool */
+    protected $allowEdit = true;
+
+    /** @var bool */
+    protected $allowView = false;
+
     /** @var AbstractModel */
     private $object;
+
+    /** @var bool */
+    private $readOnlyAll = false;
+
+    /** @var bool */
+    private $disableAll = false;
 
     /**
      * @param Context                          $context
@@ -71,6 +86,9 @@ abstract class Form
         $this->objectRegistryKey = $arrayHelper->getValue($data, 'object_registry_key');
         $this->saveUrlRoute = $arrayHelper->getValue($data, 'save_url_route', '*/*/save');
         $this->saveUrlParams = $arrayHelper->getValue($data, 'save_url_params', []);
+        $this->allowAdd = $arrayHelper->getValue($data, 'allow_add', true);
+        $this->allowEdit = $arrayHelper->getValue($data, 'allow_edit', true);
+        $this->allowView = $arrayHelper->getValue($data, 'allow_view', false);
 
         $this->registryHelper = $registryHelper;
         $this->formHelper = $formHelper;
@@ -88,6 +106,38 @@ abstract class Form
         }
 
         return $this->object;
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isReadOnlyAll(): bool
+    {
+        return $this->readOnlyAll;
+    }
+
+    /**
+     * @param bool $readOnlyAll
+     */
+    protected function setReadOnlyAll(bool $readOnlyAll): void
+    {
+        $this->readOnlyAll = $readOnlyAll;
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isDisableAll(): bool
+    {
+        return $this->disableAll;
+    }
+
+    /**
+     * @param bool $disableAll
+     */
+    protected function setDisableAll(bool $disableAll): void
+    {
+        $this->disableAll = $disableAll;
     }
 
     /**
@@ -118,9 +168,9 @@ abstract class Form
      */
     protected function createForm(): \Magento\Framework\Data\Form
     {
-        return $this->formHelper->createPostForm($this->saveUrlRoute, $this->saveUrlParams, $this->isUploadForm(),
-            'edit_form', preg_replace('/[^a-z0-9_]*/i', '', $this->objectName), $this->getObject(),
-            $this->getObjectField());
+        return $this->formHelper->createPostForm($this->allowAdd || $this->allowEdit ? $this->saveUrlRoute : '',
+            $this->allowAdd || $this->allowEdit ? $this->saveUrlParams : [], $this->isUploadForm(), 'edit_form',
+            preg_replace('/[^a-z0-9_]*/i', '', $this->objectName), $this->getObject(), $this->getObjectField());
     }
 
     /**
@@ -156,7 +206,8 @@ abstract class Form
         bool $disabled = false)
     {
         $this->formHelper->addTextField($fieldSet, $this->objectRegistryKey, $objectFieldName, $label,
-            $this->getObject(), $required, $readOnly, $disabled);
+            $this->getObject(), $required, $this->isReadOnlyAll() ? true : $readOnly,
+            $this->isDisableAll() ? true : $disabled);
     }
 
     /**
@@ -178,7 +229,8 @@ abstract class Form
         bool $disabled = false)
     {
         $this->formHelper->addTextFieldAfter($fieldSet, $this->objectRegistryKey, $objectFieldName, $label, $after,
-            $this->getObject(), $required, $readOnly, $disabled);
+            $this->getObject(), $required, $this->isReadOnlyAll() ? true : $readOnly,
+            $this->isDisableAll() ? true : $disabled);
     }
 
     /**
@@ -198,7 +250,8 @@ abstract class Form
         bool $disabled = false)
     {
         $this->formHelper->addTextareaField($fieldSet, $this->objectRegistryKey, $objectFieldName, $label,
-            $this->getObject(), $required, $readOnly, $disabled);
+            $this->getObject(), $required, $this->isReadOnlyAll() ? true : $readOnly,
+            $this->isDisableAll() ? true : $disabled);
     }
 
     /**
@@ -220,7 +273,8 @@ abstract class Form
         bool $disabled = false)
     {
         $this->formHelper->addTextareaWithCommentField($fieldSet, $this->objectRegistryKey, $objectFieldName, $label,
-            $comment, $this->getObject(), $required, $readOnly, $disabled);
+            $comment, $this->getObject(), $required, $this->isReadOnlyAll() ? true : $readOnly,
+            $this->isDisableAll() ? true : $disabled);
     }
 
     /**
@@ -244,7 +298,8 @@ abstract class Form
         bool $disabled = false)
     {
         $this->formHelper->addOptionsField($fieldSet, $this->objectRegistryKey, $objectFieldName, $label, $options,
-            $defaultValue, $this->getObject(), $required, $readOnly, $disabled);
+            $defaultValue, $this->getObject(), $required, $this->isReadOnlyAll() ? true : $readOnly,
+            $this->isDisableAll() ? true : $disabled);
     }
 
     /**
@@ -270,7 +325,8 @@ abstract class Form
         bool $disabled = false)
     {
         $this->formHelper->addOptionsMultiSelectField($fieldSet, $this->objectRegistryKey, $objectFieldName, $label,
-            $options, $defaultValue, $this->getObject(), $required, $readOnly, $disabled);
+            $options, $defaultValue, $this->getObject(), $required, $this->isReadOnlyAll() ? true : $readOnly,
+            $this->isDisableAll() ? true : $disabled);
     }
 
     /**
@@ -290,7 +346,8 @@ abstract class Form
         bool $disabled = false)
     {
         $this->formHelper->addYesNoField($fieldSet, $this->objectRegistryKey, $objectFieldName, $label,
-            $this->getObject(), $required, $readOnly, $disabled);
+            $this->getObject(), $required, $this->isReadOnlyAll() ? true : $readOnly,
+            $this->isDisableAll() ? true : $disabled);
     }
 
     /**
@@ -312,7 +369,8 @@ abstract class Form
         bool $disabled = false)
     {
         $this->formHelper->addYesNoFieldAfter($fieldSet, $this->objectRegistryKey, $objectFieldName, $label, $after,
-            $this->getObject(), $required, $readOnly, $disabled);
+            $this->getObject(), $required, $this->isReadOnlyAll() ? true : $readOnly,
+            $this->isDisableAll() ? true : $disabled);
     }
 
     /**
@@ -334,7 +392,8 @@ abstract class Form
         bool $disabled = false)
     {
         $this->formHelper->addYesNoWithDefaultField($fieldSet, $this->objectRegistryKey, $objectFieldName, $label,
-            $defaultValue, $this->getObject(), $required, $readOnly, $disabled);
+            $defaultValue, $this->getObject(), $required, $this->isReadOnlyAll() ? true : $readOnly,
+            $this->isDisableAll() ? true : $disabled);
     }
 
     /**
@@ -352,7 +411,7 @@ abstract class Form
         bool $disabled = false)
     {
         $this->formHelper->addWebsiteSelectField($fieldSet, $this->objectRegistryKey, $objectFieldName, $label,
-            $this->getObject(), $readOnly, $disabled);
+            $this->getObject(), $this->isReadOnlyAll() ? true : $readOnly, $this->isDisableAll() ? true : $disabled);
     }
 
     /**
@@ -370,7 +429,7 @@ abstract class Form
         bool $disabled = false)
     {
         $this->formHelper->addWebsiteMultiselectField($fieldSet, $this->objectRegistryKey, $objectFieldName, $label,
-            $this->getObject(), $readOnly, $disabled);
+            $this->getObject(), $this->isReadOnlyAll() ? true : $readOnly, $this->isDisableAll() ? true : $disabled);
     }
 
     /**
@@ -391,7 +450,8 @@ abstract class Form
     {
         try {
             $this->formHelper->addStoreSelectField($this->getLayout(), $fieldSet, $this->objectRegistryKey,
-                $objectFieldName, $label, $this->getObject(), $readOnly, $disabled, $all);
+                $objectFieldName, $label, $this->getObject(), $this->isReadOnlyAll() ? true : $readOnly,
+                $this->isDisableAll() ? true : $disabled, $all);
         } catch (LocalizedException $exception) {
             $this->_logger->error($exception);
         }
@@ -413,7 +473,8 @@ abstract class Form
     {
         try {
             $this->formHelper->addStoreMultiselectField($this->getLayout(), $fieldSet, $this->objectRegistryKey,
-                $objectFieldName, $label, $this->getObject(), $readOnly, $disabled);
+                $objectFieldName, $label, $this->getObject(), $this->isReadOnlyAll() ? true : $readOnly,
+                $this->isDisableAll() ? true : $disabled);
         } catch (LocalizedException $exception) {
             $this->_logger->error($exception);
         }
@@ -437,7 +498,8 @@ abstract class Form
     {
         try {
             $this->formHelper->addStoreWithAdminSelectField($this->getLayout(), $fieldSet, $this->objectRegistryKey,
-                $objectFieldName, $label, $this->getObject(), $required, $readOnly, $disabled);
+                $objectFieldName, $label, $this->getObject(), $required, $this->isReadOnlyAll() ? true : $readOnly,
+                $this->isDisableAll() ? true : $disabled);
         } catch (LocalizedException $exception) {
             $this->_logger->error($exception);
         }
@@ -462,7 +524,8 @@ abstract class Form
         bool $disabled = false)
     {
         $this->formHelper->addCmsBlockSelectField($fieldSet, $this->objectRegistryKey, $objectFieldName, $label,
-            $defaultValue, $this->getObject(), $required, $readOnly, $disabled);
+            $defaultValue, $this->getObject(), $required, $this->isReadOnlyAll() ? true : $readOnly,
+            $this->isDisableAll() ? true : $disabled);
     }
 
     /**
@@ -484,7 +547,8 @@ abstract class Form
         bool $disabled = false)
     {
         $this->formHelper->addCmsPageSelectField($fieldSet, $this->objectRegistryKey, $objectFieldName, $label,
-            $defaultValue, $this->getObject(), $required, $readOnly, $disabled);
+            $defaultValue, $this->getObject(), $required, $this->isReadOnlyAll() ? true : $readOnly,
+            $this->isDisableAll() ? true : $disabled);
     }
 
     /**
@@ -506,7 +570,8 @@ abstract class Form
         bool $disabled = false)
     {
         $this->formHelper->addTypeIdField($fieldSet, $this->objectRegistryKey, $objectFieldName, $label, $defaultValue,
-            $this->getObject(), $required, $readOnly, $disabled);
+            $this->getObject(), $required, $this->isReadOnlyAll() ? true : $readOnly,
+            $this->isDisableAll() ? true : $disabled);
     }
 
     /**
@@ -526,7 +591,8 @@ abstract class Form
         bool $disabled = false)
     {
         $this->formHelper->addTemplateField($fieldSet, $this->objectRegistryKey, $objectFieldName, $label,
-            $this->getObject(), $required, $readOnly, $disabled);
+            $this->getObject(), $required, $this->isReadOnlyAll() ? true : $readOnly,
+            $this->isDisableAll() ? true : $disabled);
     }
 
     /**
@@ -546,7 +612,8 @@ abstract class Form
         bool $disabled = false)
     {
         $this->formHelper->addCategoriesField($fieldSet, $this->objectRegistryKey, $objectFieldName, $label,
-            $this->getObject(), $required, $readOnly, $disabled);
+            $this->getObject(), $required, $this->isReadOnlyAll() ? true : $readOnly,
+            $this->isDisableAll() ? true : $disabled);
     }
 
     /**
@@ -566,7 +633,8 @@ abstract class Form
         bool $disabled = false)
     {
         $this->formHelper->addOperatorField($fieldSet, $this->objectRegistryKey, $objectFieldName, $label,
-            $this->getObject(), $required, $readOnly, $disabled);
+            $this->getObject(), $required, $this->isReadOnlyAll() ? true : $readOnly,
+            $this->isDisableAll() ? true : $disabled);
     }
 
     /**
@@ -586,7 +654,8 @@ abstract class Form
         bool $disabled = false)
     {
         $this->formHelper->addDateIsoField($fieldSet, $this->objectRegistryKey, $objectFieldName, $label,
-            $this->getObject(), $required, $readOnly, $disabled);
+            $this->getObject(), $required, $this->isReadOnlyAll() ? true : $readOnly,
+            $this->isDisableAll() ? true : $disabled);
     }
 
     /**
@@ -621,7 +690,8 @@ abstract class Form
         bool $disabled = false)
     {
         $this->formHelper->addCountryField($fieldSet, $this->objectRegistryKey, $objectFieldName, $label,
-            $this->getObject(), $required, $readOnly, $disabled);
+            $this->getObject(), $required, $this->isReadOnlyAll() ? true : $readOnly,
+            $this->isDisableAll() ? true : $disabled);
     }
 
     /**
@@ -658,7 +728,8 @@ abstract class Form
         bool $disabled = false)
     {
         $this->formHelper->addCustomerGroupField($fieldSet, $this->objectRegistryKey, $objectFieldName, $label,
-            $this->getObject(), $required, $readOnly, $disabled);
+            $this->getObject(), $required, $this->isReadOnlyAll() ? true : $readOnly,
+            $this->isDisableAll() ? true : $disabled);
     }
 
     /**
@@ -678,7 +749,8 @@ abstract class Form
         bool $disabled = false)
     {
         $this->formHelper->addCustomerGroupMultiSelectField($fieldSet, $this->objectRegistryKey, $objectFieldName,
-            $label, $this->getObject(), $required, $readOnly, $disabled);
+            $label, $this->getObject(), $required, $this->isReadOnlyAll() ? true : $readOnly,
+            $this->isDisableAll() ? true : $disabled);
     }
 
     /**
@@ -704,7 +776,8 @@ abstract class Form
         bool $withDefault = true)
     {
         $this->formHelper->addPaymentActiveMethodsField($fieldSet, $this->objectRegistryKey, $objectFieldName, $label,
-            $this->getObject(), $required, $readOnly, $disabled, $allStores, $withDefault);
+            $this->getObject(), $required, $this->isReadOnlyAll() ? true : $readOnly,
+            $this->isDisableAll() ? true : $disabled, $allStores, $withDefault);
     }
 
     /**
@@ -724,7 +797,8 @@ abstract class Form
         bool $disabled = false)
     {
         $this->formHelper->addProductTypeField($fieldSet, $this->objectRegistryKey, $objectFieldName, $label,
-            $this->getObject(), $required, $readOnly, $disabled);
+            $this->getObject(), $required, $this->isReadOnlyAll() ? true : $readOnly,
+            $this->isDisableAll() ? true : $disabled);
     }
 
     /**
@@ -946,6 +1020,59 @@ abstract class Form
         bool $disabled = false)
     {
         $this->formHelper->addCheckboxField($fieldSet, $this->objectRegistryKey, $objectFieldName, $label, $value,
-            $this->getObject(), $disabled);
+            $this->getObject(), $this->isDisableAll() ? true : $disabled);
+    }
+
+    /**
+     * @param Fieldset $fieldSet
+     * @param string   $objectFieldName
+     * @param string   $label
+     */
+    protected function addValueField(
+        Fieldset $fieldSet,
+        string $objectFieldName,
+        string $label)
+    {
+        $this->formHelper->addValueField($fieldSet, $this->objectRegistryKey, $objectFieldName, $label,
+            $this->getObject());
+    }
+
+    /**
+     * @param Fieldset $fieldSet
+     * @param string   $objectFieldName
+     * @param string   $label
+     * @param string   $value
+     * @param mixed    $onClick
+     * @param mixed    $dataMageInit
+     */
+    protected function addButtonField(
+        Fieldset $fieldSet,
+        string $objectFieldName,
+        string $label,
+        string $value,
+        $onClick = null,
+        $dataMageInit = null)
+    {
+        $this->formHelper->addButtonField($fieldSet, $objectFieldName, $label, $value, $onClick, $dataMageInit);
+    }
+
+    /**
+     * @param Fieldset $fieldSet
+     * @param string   $objectFieldName
+     * @param string   $label
+     * @param string   $value
+     * @param string   $urlPath
+     * @param array    $urlParameters
+     */
+    protected function addIframeButtonField(
+        Fieldset $fieldSet,
+        string $objectFieldName,
+        string $label,
+        string $value,
+        string $urlPath,
+        array $urlParameters = [])
+    {
+        $this->formHelper->addIframeButtonField($fieldSet, $this->objectName, $this->objectField, $objectFieldName,
+            $label, $value, $urlPath, $urlParameters, $this->getObject());
     }
 }
