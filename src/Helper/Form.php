@@ -21,6 +21,7 @@ use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Magento\Framework\View\LayoutInterface;
 use Magento\Store\Model\System\Store;
+use Magento\Theme\Model\Theme\Source\Theme;
 use Tofex\BackendWidget\Block\Config\Form\DateIso;
 use Tofex\BackendWidget\Block\Config\Form\Value;
 use Tofex\BackendWidget\Block\Config\Form\Wysiwyg;
@@ -129,6 +130,9 @@ class Form
     /** @var SortBy */
     protected $sourceAttributeSortBy;
 
+    /** @var Theme */
+    protected $sourceThemes;
+
     /** @var Collection */
     protected $customerGroupCollection;
 
@@ -171,6 +175,7 @@ class Form
      * @param CustomerAttributeCode                         $sourceCustomerAttributeCode
      * @param AddressAttributeCode                          $sourceAddressAttributeCode
      * @param SortBy                                        $sourceAttributeSortBy
+     * @param Theme                                         $sourceThemes
      * @param TimezoneInterface                             $localeDate
      * @param Type                                          $productType
      * @param Config                                        $wysiwygConfig
@@ -203,6 +208,7 @@ class Form
         CustomerAttributeCode $sourceCustomerAttributeCode,
         AddressAttributeCode $sourceAddressAttributeCode,
         SortBy $sourceAttributeSortBy,
+        Theme $sourceThemes,
         TimezoneInterface $localeDate,
         Type $productType,
         Config $wysiwygConfig,
@@ -235,6 +241,7 @@ class Form
         $this->sourceCustomerAttributeCode = $sourceCustomerAttributeCode;
         $this->sourceAddressAttributeCode = $sourceAddressAttributeCode;
         $this->sourceAttributeSortBy = $sourceAttributeSortBy;
+        $this->sourceThemes = $sourceThemes;
 
         $this->customerGroupCollection = $this->customerHelper->getCustomerGroupCollection();
         $this->dateFormatIso = $localeDate->getDateTimeFormat(IntlDateFormatter::MEDIUM);
@@ -1249,10 +1256,11 @@ class Form
         bool $required = true)
     {
         $fieldSet->addField($objectFieldName, 'file', [
-            'name'     => $objectFieldName,
-            'label'    => $label,
-            'class'    => 'disable',
-            'required' => $required
+            'name'      => $objectFieldName,
+            'label'     => $label,
+            'class'     => 'disable',
+            'required'  => $required,
+            'css_class' => 'admin__field-file'
         ]);
     }
 
@@ -1946,9 +1954,9 @@ class Form
         $dataMageInit = null)
     {
         $config = [
-            'name'  => $objectFieldName,
-            'label' => $label,
-            'value' => $value,
+            'name'      => $objectFieldName,
+            'label'     => $label,
+            'value'     => $value,
             'css_class' => 'admin__field-button'
         ];
 
@@ -1989,7 +1997,7 @@ class Form
             $objectId = $object->getDataUsingMethod($objectField);
 
             if ($objectId) {
-                $urlParameters[$objectField] = $objectId;
+                $urlParameters[ $objectField ] = $objectId;
             }
         }
 
@@ -2002,5 +2010,29 @@ class Form
         ]));
 
         $this->addButtonField($fieldSet, $objectFieldName, $label, $value, null, $dataMageInit);
+    }
+
+    /**
+     * @param Fieldset           $fieldSet
+     * @param string             $objectRegistryKey
+     * @param string             $objectFieldName
+     * @param string             $label
+     * @param AbstractModel|null $object
+     * @param bool               $required
+     * @param bool               $readOnly
+     * @param bool               $disabled
+     */
+    public function addThemeField(
+        Fieldset $fieldSet,
+        string $objectRegistryKey,
+        string $objectFieldName,
+        string $label,
+        AbstractModel $object = null,
+        bool $required = false,
+        bool $readOnly = false,
+        bool $disabled = false)
+    {
+        $this->addOptionsField($fieldSet, $objectRegistryKey, $objectFieldName, $label,
+            $this->sourceThemes->toOptionArray(), null, $object, $required, $readOnly, $disabled);
     }
 }

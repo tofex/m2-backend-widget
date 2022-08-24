@@ -35,10 +35,14 @@
             }
         }
 
-        .admin__field-checkbox {
+        .admin__field-checkbox, .admin__field-button, .admin__field-file {
             .admin__field-control {
                 line-height: 3.2rem;
+            }
+        }
 
+        .admin__field-checkbox {
+            .admin__field-control {
                 //noinspection CssNoGenericFontName
                 input:before {
                     content: '';
@@ -73,8 +77,6 @@
 
         .admin__field-button {
             .admin__field-control {
-                line-height: 3.2rem;
-
                 input {
                     margin-left: 1rem;
                 }

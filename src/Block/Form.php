@@ -1075,4 +1075,24 @@ abstract class Form
         $this->formHelper->addIframeButtonField($fieldSet, $this->objectName, $this->objectField, $objectFieldName,
             $label, $value, $urlPath, $urlParameters, $this->getObject());
     }
+
+    /**
+     * @param Fieldset $fieldSet
+     * @param string   $objectFieldName
+     * @param string   $label
+     * @param bool     $required
+     * @param bool     $readOnly
+     * @param bool     $disabled
+     */
+    public function addThemeField(
+        Fieldset $fieldSet,
+        string $objectFieldName,
+        string $label,
+        bool $required = false,
+        bool $readOnly = false,
+        bool $disabled = false)
+    {
+        $this->formHelper->addThemeField($fieldSet, $this->objectRegistryKey, $objectFieldName, $label,
+            $this->getObject(), $required, $readOnly, $disabled);
+    }
 }
