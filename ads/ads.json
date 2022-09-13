@@ -18,12 +18,7 @@
     },
     "ws": {
         "containerVolumes": [
-            "..:/var/www/magento/module:www-data",
-            "../generated:/var/www/magento/source/generated:www-data:w",
-            "../src:/var/www/magento/htdocs/app/code/Tofex/BackendWidget:www-data",
-            "../var/log:/var/www/magento/htdocs/var/log:www-data:w",
-            "../var/report:/var/www/magento/htdocs/var/report:www-data:w",
-            "../vendor:/var/www/magento/source/vendor:www-data:w"
+            "../src:/var/www/magento/htdocs/app/code/Tofex/BackendWidget:www-data"
         ]
     }
 }
