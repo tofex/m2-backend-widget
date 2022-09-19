@@ -4,6 +4,7 @@ namespace Tofex\BackendWidget\Block;
 
 use Exception;
 use Magento\Backend\Block\Template\Context;
+use Magento\Backend\Block\Widget\Button;
 use Magento\Backend\Block\Widget\Grid\Column;
 use Magento\Backend\Block\Widget\Grid\Extended;
 use Magento\Backend\Block\Widget\Grid\Massaction\AbstractMassaction;
@@ -15,10 +16,13 @@ use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\DataObject;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NotFoundException;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;
 use Magento\Framework\Validator\UniversalFactory;
+use Tofex\BackendWidget\Block\Grid\Fields;
 use Tofex\BackendWidget\Block\Grid\MassAction;
+use Tofex\BackendWidget\Helper\Session;
 use Tofex\Core\Helper\Database;
 use Tofex\Core\Helper\Registry;
 use Tofex\Help\Arrays;
@@ -44,6 +48,9 @@ abstract class Grid
 
     /** @var \Tofex\BackendWidget\Helper\Grid */
     protected $gridHelper;
+
+    /** @var Session */
+    protected $sessionHelper;
 
     /** @var Arrays */
     protected $arrayHelper;
@@ -143,6 +150,7 @@ abstract class Grid
      * @param Variables                        $variableHelper
      * @param Registry                         $registryHelper
      * @param \Tofex\BackendWidget\Helper\Grid $gridHelper
+     * @param Session                          $sessionHelper
      * @param UniversalFactory                 $universalFactory
      * @param Config                           $eavConfig
      * @param array                            $data
@@ -155,6 +163,7 @@ abstract class Grid
         Variables $variableHelper,
         Registry $registryHelper,
         \Tofex\BackendWidget\Helper\Grid $gridHelper,
+        Session $sessionHelper,
         UniversalFactory $universalFactory,
         Config $eavConfig,
         array $data = [])
@@ -187,6 +196,7 @@ abstract class Grid
         $this->variableHelper = $variableHelper;
         $this->registryHelper = $registryHelper;
         $this->gridHelper = $gridHelper;
+        $this->sessionHelper = $sessionHelper;
         $this->arrayHelper = $arrayHelper;
 
         $this->universalFactory = $universalFactory;
@@ -209,6 +219,60 @@ abstract class Grid
         $this->setVarNamePage('p');
 
         $this->setMassactionBlockName(MassAction::class);
+    }
+
+    /**
+     * Prepare grid filter buttons
+     *
+     * @return void
+     * @throws LocalizedException
+     */
+    protected function _prepareFilterButtons()
+    {
+        /** @var Fields $fields */
+        $fields = $this->getLayout()->createBlock(Fields::class);
+
+        $fields->setDataGridId($this->getHtmlId());
+        $fields->setFieldList($this->getFieldList());
+
+        /** @var Button $columnsButton */
+        $columnsButton = $this->getLayout()->createBlock(Button::class);
+
+        $columnsButton->setData([
+            'label'      => __('Show columns'),
+            'class'      => 'action-columns action-tertiary',
+            'after_html' => $fields->toHtml()
+        ]);
+
+        $this->setChild('columns_button', $columnsButton);
+
+        parent::_prepareFilterButtons();
+    }
+
+    /**
+     * @return array
+     * @throws LocalizedException
+     */
+    protected function getFieldList(): array
+    {
+        $fieldList = [];
+
+        foreach ($this->getColumnSet()->getChildNames() as $childName) {
+            $column = $this->getLayout()->getBlock($childName);
+
+            if ($column instanceof Column) {
+                if ( ! $column->getData('is_system')) {
+                    $name = $column->getData('id');
+                    $label = $column->getData('header');
+
+                    if ( ! $this->variableHelper->isEmpty($name) && ! $this->variableHelper->isEmpty($label)) {
+                        $fieldList[ $name ] = $label;
+                    }
+                }
+            }
+        }
+
+        return $fieldList;
     }
 
     /**
@@ -373,15 +437,63 @@ abstract class Grid
     {
         $this->prepareFields();
 
+        try {
+            $hiddenFieldNames = $this->sessionHelper->getHiddenFieldList($this->getHtmlId());
+        } catch (NotFoundException $exception) {
+            $hiddenFieldNames = $this->getHiddenFieldNames();
+        }
+
+        if (is_array($hiddenFieldNames)) {
+            foreach ($hiddenFieldNames as $hiddenFieldName) {
+                $this->setColumnHidden($hiddenFieldName);
+            }
+        }
+
         $this->addActionColumn();
 
         return parent::_prepareColumns();
     }
 
     /**
+     * @param string $hiddenFieldName
+     */
+    protected function setColumnHidden(string $hiddenFieldName): void
+    {
+        /** @var Column $column */
+        $column = $this->getColumnSet()->getChildBlock($hiddenFieldName);
+
+        if ($column) {
+            $headerCssClasses = $column->getData('header_css_class');
+
+            if ($headerCssClasses) {
+                $headerCssClasses .= ' hidden';
+            } else {
+                $headerCssClasses = 'hidden';
+            }
+
+            $column->setData('header_css_class', $headerCssClasses);
+
+            $rowCssClasses = $column->getData('column_css_class');
+
+            if ($rowCssClasses) {
+                $rowCssClasses .= ' hidden';
+            } else {
+                $rowCssClasses = 'hidden';
+            }
+
+            $column->setData('column_css_class', $rowCssClasses);
+        }
+    }
+
+    /**
      * @return void
      */
     abstract protected function prepareFields();
+
+    /**
+     * @return string[]
+     */
+    abstract protected function getHiddenFieldNames(): array;
 
     /**
      * @param string $objectFieldName
@@ -1232,5 +1344,19 @@ abstract class Grid
             $collection->getSelect()->where(sprintf('IF(%s.value IS NULL, main_table.%s, %s.value) like %s',
                 $optionValueTableAlias, $valueColumnName, $optionValueTableAlias, $value));
         }
+    }
+
+    /**
+     * @return string
+     */
+    public function getMainButtonsHtml(): string
+    {
+        $html = parent::getMainButtonsHtml();
+
+        if ($this->getFilterVisibility()) {
+            $html .= $this->getChildHtml('columns_button');
+        }
+
+        return $html;
     }
 }

@@ -164,9 +164,10 @@ class Grid
     public function addTextColumn(Extended $grid, string $objectFieldName, string $label)
     {
         $grid->addColumn($objectFieldName, [
-            'header' => $label,
-            'index'  => $objectFieldName,
-            'type'   => 'text'
+            'header'           => $label,
+            'index'            => $objectFieldName,
+            'type'             => 'text',
+            'column_css_class' => 'data-grid-td'
         ]);
     }
 
@@ -181,10 +182,11 @@ class Grid
     public function addTextColumnWithFilter(Extended $grid, string $objectFieldName, string $label, string $filterIndex)
     {
         $grid->addColumn($objectFieldName, [
-            'header'       => $label,
-            'index'        => $objectFieldName,
-            'filter_index' => $filterIndex,
-            'type'         => 'text'
+            'header'           => $label,
+            'index'            => $objectFieldName,
+            'filter_index'     => $filterIndex,
+            'type'             => 'text',
+            'column_css_class' => 'data-grid-td'
         ]);
     }
 
@@ -202,6 +204,7 @@ class Grid
             'header'                    => $label,
             'index'                     => $objectFieldName,
             'type'                      => 'text',
+            'column_css_class'          => 'data-grid-td',
             'filter_condition_callback' => $callback
         ]);
     }
@@ -216,9 +219,10 @@ class Grid
     public function addNumberColumn(Extended $grid, string $objectFieldName, string $label)
     {
         $grid->addColumn($objectFieldName, [
-            'header' => $label,
-            'index'  => $objectFieldName,
-            'type'   => 'number'
+            'header'           => $label,
+            'index'            => $objectFieldName,
+            'type'             => 'number',
+            'column_css_class' => 'data-grid-td'
         ]);
     }
 
@@ -237,10 +241,11 @@ class Grid
         string $filterIndex)
     {
         $grid->addColumn($objectFieldName, [
-            'header'       => $label,
-            'index'        => $objectFieldName,
-            'filter_index' => $filterIndex,
-            'type'         => 'number'
+            'header'           => $label,
+            'index'            => $objectFieldName,
+            'filter_index'     => $filterIndex,
+            'type'             => 'number',
+            'column_css_class' => 'data-grid-td'
         ]);
     }
 
@@ -262,6 +267,7 @@ class Grid
             'header'                    => $label,
             'index'                     => $objectFieldName,
             'type'                      => 'number',
+            'column_css_class'          => 'data-grid-td',
             'filter_condition_callback' => $callback
         ]);
     }
@@ -276,9 +282,10 @@ class Grid
     public function addPriceColumn(Extended $grid, string $objectFieldName, string $label)
     {
         $grid->addColumn($objectFieldName, [
-            'header' => $label,
-            'index'  => $objectFieldName,
-            'type'   => 'price'
+            'header'           => $label,
+            'index'            => $objectFieldName,
+            'type'             => 'price',
+            'column_css_class' => 'data-grid-td'
         ]);
     }
 
@@ -299,10 +306,11 @@ class Grid
         $after = null)
     {
         $config = [
-            'header'  => $label,
-            'type'    => 'options',
-            'index'   => $objectFieldName,
-            'options' => $options
+            'header'           => $label,
+            'type'             => 'options',
+            'column_css_class' => 'data-grid-td',
+            'index'            => $objectFieldName,
+            'options'          => $options
         ];
 
         if ($after) {
@@ -329,11 +337,12 @@ class Grid
         string $filterIndex)
     {
         $grid->addColumn($objectFieldName, [
-            'header'       => $label,
-            'type'         => 'options',
-            'index'        => $objectFieldName,
-            'filter_index' => $filterIndex,
-            'options'      => $options
+            'header'           => $label,
+            'type'             => 'options',
+            'column_css_class' => 'data-grid-td',
+            'index'            => $objectFieldName,
+            'filter_index'     => $filterIndex,
+            'options'          => $options
         ]);
     }
 
@@ -356,6 +365,7 @@ class Grid
         $grid->addColumn($objectFieldName, [
             'header'                    => $label,
             'type'                      => 'options',
+            'column_css_class'          => 'data-grid-td',
             'index'                     => $objectFieldName,
             'options'                   => $options,
             'filter_condition_callback' => $callback
@@ -383,6 +393,7 @@ class Grid
         $grid->addColumn($objectFieldName, [
             'header'                    => $label,
             'type'                      => 'options',
+            'column_css_class'          => 'data-grid-td',
             'index'                     => $objectFieldName,
             'options'                   => $options,
             'filter_condition_callback' => $callback,
@@ -411,6 +422,7 @@ class Grid
         $grid->addColumn($objectFieldName, [
             'header'                    => $label,
             'type'                      => 'options',
+            'column_css_class'          => 'data-grid-td',
             'index'                     => $objectFieldName,
             'options'                   => $options,
             'filter_condition_callback' => $filterCallback,
@@ -435,11 +447,12 @@ class Grid
         $callback)
     {
         $grid->addColumn($objectFieldName, [
-            'header'         => $label,
-            'type'           => 'options',
-            'index'          => $objectFieldName,
-            'options'        => $options,
-            'frame_callback' => $callback
+            'header'           => $label,
+            'type'             => 'options',
+            'column_css_class' => 'data-grid-td',
+            'index'            => $objectFieldName,
+            'options'          => $options,
+            'frame_callback'   => $callback
         ]);
     }
 
@@ -455,7 +468,7 @@ class Grid
         $grid->addColumn($objectFieldName, [
             'header'           => $label,
             'type'             => 'date',
-            'column_css_class' => 'date',
+            'column_css_class' => 'data-grid-td date',
             'index'            => $objectFieldName
         ]);
     }
@@ -472,7 +485,7 @@ class Grid
         $grid->addColumn($objectFieldName, [
             'header'           => $label,
             'type'             => 'datetime',
-            'column_css_class' => 'time',
+            'column_css_class' => 'data-grid-td time',
             'index'            => $objectFieldName
         ]);
     }
@@ -529,10 +542,11 @@ class Grid
         }
 
         $grid->addColumn('website_name', [
-            'header'       => $label,
-            'type'         => 'text',
-            'index'        => 'website_name',
-            'filter_index' => 'website.name'
+            'header'           => $label,
+            'type'             => 'text',
+            'column_css_class' => 'data-grid-td',
+            'index'            => 'website_name',
+            'filter_index'     => 'website.name'
         ]);
     }
 
@@ -550,11 +564,12 @@ class Grid
         }
 
         $grid->addColumn($objectFieldName, [
-            'header'   => $label,
-            'type'     => 'options',
-            'index'    => $objectFieldName,
-            'options'  => $this->sourceStore->getStoreOptionHash(false),
-            'sortable' => false
+            'header'           => $label,
+            'type'             => 'options',
+            'column_css_class' => 'data-grid-td',
+            'index'            => $objectFieldName,
+            'options'          => $this->sourceStore->getStoreOptionHash(false),
+            'sortable'         => false
         ]);
     }
 
@@ -575,6 +590,7 @@ class Grid
             'header'                    => $label,
             'index'                     => $objectFieldName,
             'type'                      => 'store',
+            'column_css_class'          => 'data-grid-td',
             'store_all'                 => true,
             'store_view'                => true,
             'sortable'                  => false,
@@ -599,6 +615,7 @@ class Grid
             'header'                    => $label,
             'index'                     => $objectFieldName,
             'type'                      => 'store_admin',
+            'column_css_class'          => 'data-grid-td',
             'filter'                    => \Tofex\BackendWidget\Block\Grid\Column\Filter\Store::class,
             'renderer'                  => \Tofex\BackendWidget\Block\Grid\Column\Renderer\Store::class,
             'store_all'                 => true,
@@ -622,11 +639,12 @@ class Grid
         }
 
         $grid->addColumn($objectFieldName, [
-            'header'   => $label,
-            'type'     => 'options',
-            'index'    => $objectFieldName,
-            'options'  => $this->sourceCmsPage->toOptions(),
-            'sortable' => false
+            'header'           => $label,
+            'type'             => 'options',
+            'column_css_class' => 'data-grid-td',
+            'index'            => $objectFieldName,
+            'options'          => $this->sourceCmsPage->toOptions(),
+            'sortable'         => false
         ]);
     }
 
@@ -652,12 +670,13 @@ class Grid
     public function addTemplateColumn(Extended $grid, string $objectFieldName, string $label)
     {
         $grid->addColumn($objectFieldName, [
-            'header'   => $label,
-            'type'     => 'options',
-            'options'  => $this->templateHelper->getAllTemplates(),
-            'sortable' => false,
-            'index'    => $objectFieldName,
-            'renderer' => \Tofex\BackendWidget\Block\Grid\Column\Renderer\Template::class
+            'header'           => $label,
+            'type'             => 'options',
+            'column_css_class' => 'data-grid-td',
+            'options'          => $this->templateHelper->getAllTemplates(),
+            'sortable'         => false,
+            'index'            => $objectFieldName,
+            'renderer'         => \Tofex\BackendWidget\Block\Grid\Column\Renderer\Template::class
         ]);
     }
 
@@ -674,6 +693,7 @@ class Grid
             'header'                    => $label,
             'index'                     => $objectFieldName,
             'type'                      => 'options',
+            'column_css_class'          => 'data-grid-td',
             'options'                   => $this->sourceCategories->toOptions(),
             'sortable'                  => false,
             'renderer'                  => \Tofex\BackendWidget\Block\Grid\Column\Renderer\Categories::class,
@@ -698,13 +718,14 @@ class Grid
         string $height = '15px')
     {
         $grid->addColumn($objectFieldName, [
-            'header'   => $label,
-            'type'     => 'text',
-            'width'    => $width,
-            'height'   => $height,
-            'sortable' => false,
-            'index'    => $objectFieldName,
-            'renderer' => Description::class
+            'header'           => $label,
+            'type'             => 'text',
+            'column_css_class' => 'data-grid-td',
+            'width'            => $width,
+            'height'           => $height,
+            'sortable'         => false,
+            'index'            => $objectFieldName,
+            'renderer'         => Description::class
         ]);
     }
 
@@ -840,10 +861,12 @@ class Grid
         bool $product = true)
     {
         $grid->addColumn($objectFieldName, [
-            'header'  => $label,
-            'type'    => 'options',
-            'index'   => $objectFieldName,
-            'options' => $this->sourceAttributes->toOptionsWithEntities($customer, $address, $category, $product)
+            'header'           => $label,
+            'type'             => 'options',
+            'column_css_class' => 'data-grid-td',
+            'index'            => $objectFieldName,
+            'options'          => $this->sourceAttributes->toOptionsWithEntities($customer, $address, $category,
+                $product)
         ]);
     }
 
@@ -869,6 +892,7 @@ class Grid
             'header'                    => $label,
             'index'                     => $objectFieldValueName,
             'type'                      => 'text',
+            'column_css_class'          => 'data-grid-td',
             'filter_condition_callback' => [$grid, 'filterEavAttributeOptionValue']
         ]);
 
@@ -900,10 +924,12 @@ class Grid
         bool $product = true)
     {
         $grid->addColumn($objectFieldName, [
-            'header'  => $label,
-            'type'    => 'options',
-            'index'   => $objectFieldName,
-            'options' => $this->sourceAttributeSets->toOptionsWithEntities($customer, $address, $category, $product)
+            'header'           => $label,
+            'type'             => 'options',
+            'column_css_class' => 'data-grid-td',
+            'index'            => $objectFieldName,
+            'options'          => $this->sourceAttributeSets->toOptionsWithEntities($customer, $address, $category,
+                $product)
         ]);
     }
 
@@ -928,10 +954,12 @@ class Grid
         bool $product = true)
     {
         $grid->addColumn($objectFieldName, [
-            'header'  => $label,
-            'type'    => 'options',
-            'index'   => $objectFieldName,
-            'options' => $this->sourceEntityTypes->toOptionsWithEntities($customer, $address, $category, $product)
+            'header'           => $label,
+            'type'             => 'options',
+            'column_css_class' => 'data-grid-td',
+            'index'            => $objectFieldName,
+            'options'          => $this->sourceEntityTypes->toOptionsWithEntities($customer, $address, $category,
+                $product)
         ]);
     }
 

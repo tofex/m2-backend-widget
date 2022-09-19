@@ -2,6 +2,7 @@
     "require": [
         "webserver_php_magento-module-demo.json",
         "database_magento2-module-demo.json",
+        "elasticsearch_magento-module-demo.json",
         "mailcatcher_magento.json",
         "magento2-module-demo.json"
     ],
@@ -9,11 +10,12 @@
         "systemName": "m2_backend_widget",
         "webServerType": "apache_php",
         "webServerVersion": "2.4",
-        "phpVersion": "7.3",
+        "phpVersion": "7.4",
         "databaseType": "mysql",
         "databaseVersion": "5.7",
+        "elasticsearchVersion": "7.9",
         "mailCatcherVersion": "0.6",
-        "magentoVersion": "2.3.7",
+        "magentoVersion": "2.4.1",
         "magentoEdition": "community"
     },
     "ws": {

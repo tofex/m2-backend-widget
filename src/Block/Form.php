@@ -1007,7 +1007,6 @@ abstract class Form
      * @param Fieldset $fieldSet
      * @param string   $objectFieldName
      * @param string   $label
-     * @param array    $options
      * @param mixed    $value
      * @param bool     $disabled
      */
@@ -1015,7 +1014,6 @@ abstract class Form
         Fieldset $fieldSet,
         string $objectFieldName,
         string $label,
-        array $options,
         $value,
         bool $disabled = false)
     {
