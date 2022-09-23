@@ -198,10 +198,10 @@ abstract class Edit
     }
 
     /**
-     * @return AbstractDb
+     * @return AbstractDb|AbstractEntity
      * @throws Exception
      */
-    protected function getObjectResourceInstance(): AbstractDb
+    protected function getObjectResourceInstance()
     {
         $modelResourceClass = $this->getModelResourceClass();
 
