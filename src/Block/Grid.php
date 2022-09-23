@@ -206,6 +206,7 @@ abstract class Grid
     /**
      * @return void
      * @throws FileSystemException
+     * @noinspection PhpDocRedundantThrowsInspection
      */
     public function _construct()
     {
@@ -381,6 +382,7 @@ abstract class Grid
                         sprintf('main_table.%s = %s.%s', $mainTableFieldName, $tableAlias, $joinTableFieldName);
                 }
 
+                /** @noinspection PhpParamsInspection */
                 $collection->join([$tableAlias => $tableName], implode(' AND ', $joinConditions), $resultFields);
             }
         }
@@ -779,6 +781,17 @@ abstract class Grid
     public function addCmsPageColumn(string $objectFieldName, string $label = null)
     {
         $this->gridHelper->addCmsPageColumn($this, $objectFieldName, $label);
+    }
+
+    /**
+     * @param string      $objectFieldName
+     * @param string|null $label
+     *
+     * @throws Exception
+     */
+    public function addCmsBlockColumn(string $objectFieldName, string $label = null)
+    {
+        $this->gridHelper->addCmsBlockColumn($this, $objectFieldName, $label);
     }
 
     /**

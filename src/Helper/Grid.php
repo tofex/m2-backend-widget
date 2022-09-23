@@ -20,6 +20,7 @@ use Tofex\Core\Model\Config\Source\Attribute\ProductAttributeCode;
 use Tofex\Core\Model\Config\Source\Attribute\SortBy;
 use Tofex\Core\Model\Config\Source\AttributeSet;
 use Tofex\Core\Model\Config\Source\Categories;
+use Tofex\Core\Model\Config\Source\CmsBlock;
 use Tofex\Core\Model\Config\Source\CmsPage;
 use Tofex\Core\Model\Config\Source\EntityType;
 use Tofex\Core\Model\Config\Source\Operator;
@@ -51,6 +52,9 @@ class Grid
 
     /** @var CmsPage */
     protected $sourceCmsPage;
+
+    /** @var CmsBlock */
+    protected $sourceCmsBlock;
 
     /** @var TypeId */
     protected $sourceTypeIds;
@@ -98,6 +102,7 @@ class Grid
      * @param Yesno                 $sourceYesNo
      * @param Store                 $sourceStore
      * @param CmsPage               $sourceCmsPage
+     * @param CmsBlock              $sourceCmsBlock
      * @param TypeId                $sourceTypeIds
      * @param Categories            $sourceCategories
      * @param Operator              $sourceOperator
@@ -118,6 +123,7 @@ class Grid
         Yesno $sourceYesNo,
         Store $sourceStore,
         CmsPage $sourceCmsPage,
+        CmsBlock $sourceCmsBlock,
         TypeId $sourceTypeIds,
         Categories $sourceCategories,
         Operator $sourceOperator,
@@ -138,6 +144,7 @@ class Grid
         $this->sourceYesNo = $sourceYesNo;
         $this->sourceStore = $sourceStore;
         $this->sourceCmsPage = $sourceCmsPage;
+        $this->sourceCmsBlock = $sourceCmsBlock;
         $this->sourceTypeIds = $sourceTypeIds;
         $this->sourceCategories = $sourceCategories;
         $this->sourceOperator = $sourceOperator;
@@ -644,6 +651,29 @@ class Grid
             'column_css_class' => 'data-grid-td',
             'index'            => $objectFieldName,
             'options'          => $this->sourceCmsPage->toOptions(),
+            'sortable'         => false
+        ]);
+    }
+
+    /**
+     * @param Extended    $grid
+     * @param string      $objectFieldName
+     * @param string|null $label
+     *
+     * @throws Exception
+     */
+    public function addCmsBlockColumn(Extended $grid, string $objectFieldName, string $label = null)
+    {
+        if (empty($label)) {
+            $label = __('Block');
+        }
+
+        $grid->addColumn($objectFieldName, [
+            'header'           => $label,
+            'type'             => 'options',
+            'column_css_class' => 'data-grid-td',
+            'index'            => $objectFieldName,
+            'options'          => $this->sourceCmsBlock->toOptions(),
             'sortable'         => false
         ]);
     }
