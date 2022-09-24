@@ -3,6 +3,7 @@
 namespace Tofex\BackendWidget\Block\Grid;
 
 use Magento\Backend\Block\Template;
+use Magento\Framework\App\Request\Http;
 
 /**
  * @author      Andreas Knollmann
@@ -66,5 +67,24 @@ class Fields
     public function getAjaxUrl(): string
     {
         return $this->getUrl('tofex_backendwidget/grid/fields');
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAjax(): bool
+    {
+        /** @var Http $request */
+        $request = $this->getRequest();
+
+        return $request->isAjax();
+    }
+
+    /**
+     * @return string
+     */
+    protected function _toHtml(): string
+    {
+        return ! $this->isAjax() ? parent::_toHtml() : '';
     }
 }

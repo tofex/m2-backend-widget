@@ -21,61 +21,89 @@ define([
             dataGridId: ''
         },
 
-        _create: function createBundleOptionsMinMax() {
-            this.dataGrid = $('table.data-grid');
-            this.dataGridColumnsButton = $('.action-columns');
-            this.dataGridColumnsButtonText = $('span', this.dataGridColumnsButton);
-            this.dataGridColumnsButtonTextValue = this.dataGridColumnsButtonText.text();
+        _create: function createDataGridColumns() {
+            this.dataGrid = $('div[data-grid-id]')
             this.dataGridColumnsList = $('.data-grid-columns');
             this.dataGridColumnsCheckboxes = $('.data-grid-column-checkbox', this.dataGridColumnsList);
+
+            if (this.dataGridColumnsList.length > 0) {
+                modal({
+                    type: 'popup',
+                    responsive: true,
+                    modalClass: 'data-grid-fields-popup',
+                    title: $.mage.__('Show columns'),
+                    buttons: []
+                }, this.dataGridColumnsList);
+
+                var dataGridColumns = this;
+
+                this.dataGridColumnsCheckboxes.each(function () {
+                    var columnCheckbox = $(this);
+                    var columnId = columnCheckbox.attr('id');
+
+                    if (columnId) {
+                        var fieldName = columnId.replace('data-grid-column-', '');
+                        var columnClassName = 'col-' + fieldName;
+
+                        var columnHeader = $('th.' + columnClassName, $('table.data-grid', dataGridColumns.dataGrid));
+                        if (columnHeader.length) {
+                            if (!columnHeader.hasClass('hidden')) {
+                                columnCheckbox.attr('checked', true);
+                            }
+                        }
+
+                        columnCheckbox.on('change', function () {
+                            var columnList = $('.' + columnClassName, $('table.data-grid', dataGridColumns.dataGrid));
+
+                            if (columnList.length) {
+                                columnList.toggleClass('hidden');
+
+                                dataGridColumns._updateButtonText();
+                                dataGridColumns._saveSelection();
+                            }
+                        });
+                    }
+                });
+
+                var dataGridColumnsButton = $('.action-columns', this.dataGrid);
+                var dataGridColumnsButtonText = $('span', dataGridColumnsButton);
+                this.dataGridColumnsButtonTextValue = dataGridColumnsButtonText.text();
+
+                this._updateButtonText();
+            }
         },
 
         _init: function initDataGridColumns() {
             var dataGridColumns = this;
 
-            modal({
-                type: 'popup',
-                responsive: true,
-                modalClass: 'data-grid-fields-popup',
-                title: $.mage.__('Show columns'),
-                buttons: []
-            }, dataGridColumns.dataGridColumnsList);
-
-            dataGridColumns.dataGridColumnsButton.on('click', function () {
+            $('.action-columns', this.dataGrid).on('click', function () {
                 dataGridColumns.dataGridColumnsList.modal('openModal');
             });
 
-            dataGridColumns.dataGridColumnsCheckboxes.each(function () {
-                var columnCheckbox = $(this);
-                var columnId = columnCheckbox.attr('id');
-                if (columnId) {
-                    var fieldName = columnId.replace('data-grid-column-', '');
-                    var columnClassName = 'col-' + fieldName;
-                    var columnHeader = $('.' + columnClassName, dataGridColumns.dataGrid);
-                    if (columnHeader.length) {
-                        if (!columnHeader.hasClass('hidden')) {
-                            columnCheckbox.attr('checked', true);
-                        }
-                        columnCheckbox.on('change', function () {
-                            columnHeader.toggleClass('hidden');
-                            dataGridColumns._updateButtonText();
-                            dataGridColumns._saveSelection();
-                        });
-                    }
-                }
+            var observer = new MutationObserver(function () {
+                dataGridColumns._init();
+                dataGridColumns._updateButtonText();
+                observer.disconnect();
             });
 
-            dataGridColumns._updateButtonText();
+            observer.observe(this.dataGrid[0], {
+                attributes: false,
+                childList: true,
+                characterData: false
+            });
         },
 
         _updateButtonText: function () {
+            var dataGridColumnsButton = $('.action-columns', this.dataGrid);
+            var dataGridColumnsButtonText = $('span', dataGridColumnsButton);
+
             var checkedDataGridColumnsCheckboxes = $('.data-grid-column-checkbox:checked', this.dataGridColumnsList);
             var hiddenCount = this.dataGridColumnsCheckboxes.length - checkedDataGridColumnsCheckboxes.length;
             if (hiddenCount > 0) {
-                this.dataGridColumnsButtonText.text(this.dataGridColumnsButtonTextValue +
+                dataGridColumnsButtonText.text(this.dataGridColumnsButtonTextValue +
                     ' (' + hiddenCount + ' ' + $.mage.__('hidden') + ')');
             } else {
-                this.dataGridColumnsButtonText.text(this.dataGridColumnsButtonTextValue);
+                dataGridColumnsButtonText.text(this.dataGridColumnsButtonTextValue);
             }
         },
 
