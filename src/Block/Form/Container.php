@@ -75,6 +75,9 @@ class Container
     /** @var array */
     protected $indexUrlParams;
 
+    /** @var string */
+    protected $formContentBlockType;
+
     /** @var AbstractModel */
     private $object;
 
@@ -113,6 +116,7 @@ class Container
         $this->deleteUrlParams = $arrayHelper->getValue($data, 'delete_url_params', []);
         $this->indexUrlRoute = $arrayHelper->getValue($data, 'index_url_route');
         $this->indexUrlParams = $arrayHelper->getValue($data, 'index_url_params', []);
+        $this->formContentBlockType = $arrayHelper->getValue($data, 'form_content_block_type');
 
         parent::__construct($context, $data);
     }
@@ -167,36 +171,40 @@ class Container
      */
     protected function _prepareLayout(): AbstractBlock
     {
-        if ($this->_blockGroup && $this->_controller) {
-            $blockClassName = sprintf('%s\Block\%s\%s\%s', str_replace('_', '\\', $this->_blockGroup),
+        if ($this->formContentBlockType === null && $this->_blockGroup && $this->_controller) {
+            $this->formContentBlockType = sprintf('%s\Block\%s\%s\%s', str_replace('_', '\\', $this->_blockGroup),
                 str_replace('_', '\\', $this->_controller), ucfirst($this->_mode), $this->allowEdit ? 'Form' : 'View');
 
-            if ( ! class_exists($blockClassName)) {
-                $blockClassName = sprintf('%s\Block\%s\%s', str_replace('_', '\\', $this->_blockGroup),
+            if ( ! class_exists($this->formContentBlockType)) {
+                $this->formContentBlockType = sprintf('%s\Block\%s\%s', str_replace('_', '\\', $this->_blockGroup),
                     str_replace('_', '\\', $this->_controller), $this->allowEdit ? 'Form' : 'View');
             }
-
-            if ( ! class_exists($blockClassName)) {
-                throw new Exception(sprintf('Could not find block class: %s', $blockClassName));
-            }
-
-            /** @var AbstractBlock $block */
-            $block = $this->getLayout()->createBlock($blockClassName, '', [
-                'data' => [
-                    'module_key'          => $this->moduleKey,
-                    'object_name'         => $this->objectName,
-                    'object_field'        => $this->objectField,
-                    'object_registry_key' => $this->objectRegistryKey,
-                    'save_url_route'      => $this->saveUrlRoute,
-                    'save_url_params'     => $this->saveUrlParams,
-                    'allow_add'           => $this->allowAdd,
-                    'allow_edit'          => $this->allowEdit,
-                    'allow_view'          => $this->allowView
-                ]
-            ]);
-
-            $this->setChild('form', $block);
         }
+
+        if ($this->formContentBlockType === null) {
+            throw new Exception('No block class defined');
+        }
+
+        if ( ! class_exists($this->formContentBlockType)) {
+            throw new Exception(sprintf('Could not find block class: %s', $this->formContentBlockType));
+        }
+
+        /** @var AbstractBlock $block */
+        $block = $this->getLayout()->createBlock($this->formContentBlockType, '', [
+            'data' => [
+                'module_key'          => $this->moduleKey,
+                'object_name'         => $this->objectName,
+                'object_field'        => $this->objectField,
+                'object_registry_key' => $this->objectRegistryKey,
+                'save_url_route'      => $this->saveUrlRoute,
+                'save_url_params'     => $this->saveUrlParams,
+                'allow_add'           => $this->allowAdd,
+                'allow_edit'          => $this->allowEdit,
+                'allow_view'          => $this->allowView
+            ]
+        ]);
+
+        $this->setChild('form', $block);
 
         return \Magento\Backend\Block\Widget\Container::_prepareLayout();
     }

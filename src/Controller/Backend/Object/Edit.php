@@ -76,22 +76,23 @@ abstract class Edit
         /** @var AbstractBlock $block */
         $block = $this->_view->getLayout()->createBlock($this->getFormBlockType(), '', [
             'data' => [
-                'module_key'          => $this->getModuleKey(),
-                'object_name'         => $this->getObjectName(),
-                'object_field'        => $this->getObjectField(),
-                'object_registry_key' => $this->getObjectRegistryKey(),
-                'title'               => $this->getTitle(),
-                'allow_add'           => $this->allowAdd(),
-                'allow_edit'          => $this->allowEdit(),
-                'allow_view'          => $this->allowView(),
-                'allow_delete'        => $this->allowDelete(),
-                'allow_export'        => $this->allowExport(),
-                'save_url_route'      => $this->getSaveUrlRoute(),
-                'save_url_params'     => $this->getSaveUrlParams(),
-                'delete_url_route'    => $this->getDeleteUrlRoute(),
-                'delete_url_params'   => $this->getDeleteUrlParams(),
-                'index_url_route'     => $this->getIndexUrlRoute(),
-                'index_url_params'    => $this->getIndexUrlParams()
+                'module_key'              => $this->getModuleKey(),
+                'object_name'             => $this->getObjectName(),
+                'object_field'            => $this->getObjectField(),
+                'object_registry_key'     => $this->getObjectRegistryKey(),
+                'title'                   => $this->getTitle(),
+                'allow_add'               => $this->allowAdd(),
+                'allow_edit'              => $this->allowEdit(),
+                'allow_view'              => $this->allowView(),
+                'allow_delete'            => $this->allowDelete(),
+                'allow_export'            => $this->allowExport(),
+                'save_url_route'          => $this->getSaveUrlRoute(),
+                'save_url_params'         => $this->getSaveUrlParams(),
+                'delete_url_route'        => $this->getDeleteUrlRoute(),
+                'delete_url_params'       => $this->getDeleteUrlParams(),
+                'index_url_route'         => $this->getIndexUrlRoute(),
+                'index_url_params'        => $this->getIndexUrlParams(),
+                'form_content_block_type' => $this->getFormContentBlockType()
             ]
         ]);
 
@@ -230,6 +231,14 @@ abstract class Edit
     protected function getFormBlockType(): string
     {
         return Container::class;
+    }
+
+    /**
+     * @return string|null
+     */
+    protected function getFormContentBlockType(): ?string
+    {
+        return null;
     }
 
     /**
