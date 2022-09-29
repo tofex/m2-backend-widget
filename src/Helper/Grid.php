@@ -220,6 +220,27 @@ class Grid
      * @param Extended $grid
      * @param string   $objectFieldName
      * @param string   $label
+     * @param string   $renderer
+     *
+     * @throws Exception
+     */
+    public function addTextColumnWithRenderer(Extended $grid, string $objectFieldName, string $label, string $renderer)
+    {
+        $grid->addColumn($objectFieldName, [
+            'header'           => $label,
+            'index'            => $objectFieldName,
+            'type'             => 'text',
+            'filter'           => false,
+            'sortable'         => false,
+            'renderer'         => $renderer,
+            'column_css_class' => 'data-grid-td'
+        ]);
+    }
+
+    /**
+     * @param Extended $grid
+     * @param string   $objectFieldName
+     * @param string   $label
      *
      * @throws Exception
      */

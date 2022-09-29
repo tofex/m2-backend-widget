@@ -535,6 +535,18 @@ abstract class Grid
     /**
      * @param string $objectFieldName
      * @param string $label
+     * @param mixed  $renderer
+     *
+     * @throws Exception
+     */
+    protected function addTextColumnWithRenderer(string $objectFieldName, string $label, $renderer)
+    {
+        $this->gridHelper->addTextColumnWithRenderer($this, $objectFieldName, $label, $renderer);
+    }
+
+    /**
+     * @param string $objectFieldName
+     * @param string $label
      *
      * @throws Exception
      */
