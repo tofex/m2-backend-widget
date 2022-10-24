@@ -32,7 +32,11 @@ use Tofex\BackendWidget\Block\Grid\Fields;
             "tofex/data-grid-fields": {
                 "formKey": "<?= $block->getFormKey(); ?>",
                 "ajaxUrl": "<?= $block->getAjaxUrl(); ?>",
-                "dataGridId": "<?= $block->getDataGridId(); ?>"
+                "dataGridId": "<?= $block->getDataGridId(); ?>",
+                "jsObjectName": "<?= $block->getJsObjectName(); ?>",
+                "fieldList": <?= json_encode(array_keys($block->getFieldList())); ?>,
+                "groupByFieldList": <?= json_encode(array_keys($block->getGroupByFieldList())); ?>,
+                "activeGroupByFieldList": <?= json_encode($block->getActiveGroupByFieldList()); ?>
             }
         }
     }

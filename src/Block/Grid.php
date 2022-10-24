@@ -230,11 +230,15 @@ abstract class Grid
      */
     protected function _prepareFilterButtons()
     {
-        /** @var Fields $fields */
-        $fields = $this->getLayout()->createBlock(Fields::class);
+        /** @var Button $filtersButton */
+        $filtersButton = $this->getLayout()->createBlock(Button::class);
 
-        $fields->setDataGridId($this->getHtmlId());
-        $fields->setFieldList($this->getFieldList());
+        $filtersButton->setData([
+            'label' => __('Show filters'),
+            'class' => 'action-filters action-tertiary'
+        ]);
+
+        $this->setChild('filters_button', $filtersButton);
 
         /** @var Button $columnsButton */
         $columnsButton = $this->getLayout()->createBlock(Button::class);
@@ -242,12 +246,28 @@ abstract class Grid
         $columnsButton->setData([
             'label'      => __('Show columns'),
             'class'      => 'action-columns action-tertiary',
-            'after_html' => $fields->toHtml()
+            'after_html' => $this->getFieldsBlock()->toHtml()
         ]);
 
         $this->setChild('columns_button', $columnsButton);
 
         parent::_prepareFilterButtons();
+    }
+
+    /**
+     * @return Fields
+     * @throws LocalizedException
+     */
+    protected function getFieldsBlock(): Fields
+    {
+        /** @var Fields $fields */
+        $fields = $this->getLayout()->createBlock(Fields::class);
+
+        $fields->setDataGridId($this->getHtmlId());
+        $fields->setJsObjectName($this->getJsObjectName());
+        $fields->setFieldList($this->getFieldList());
+
+        return $fields;
     }
 
     /**
@@ -292,6 +312,7 @@ abstract class Grid
         $collection = $model->getCollection();
 
         $this->prepareCollection($collection);
+        $this->followUpCollection($collection);
 
         $this->setCollection($collection);
 
@@ -304,6 +325,13 @@ abstract class Grid
      * @return void
      */
     abstract protected function prepareCollection(AbstractDb $collection);
+
+    /**
+     * @param AbstractDb $collection
+     */
+    protected function followUpCollection(AbstractDb $collection)
+    {
+    }
 
     /**
      * @param Collection $collection
@@ -438,6 +466,7 @@ abstract class Grid
     protected function _prepareColumns(): Extended
     {
         $this->prepareFields();
+        $this->followUpFields();
 
         try {
             $hiddenFieldNames = $this->sessionHelper->getHiddenFieldList($this->getHtmlId());
@@ -491,6 +520,13 @@ abstract class Grid
      * @return void
      */
     abstract protected function prepareFields();
+
+    /**
+     * @return void
+     */
+    protected function followUpFields()
+    {
+    }
 
     /**
      * @return string[]
@@ -600,6 +636,18 @@ abstract class Grid
     protected function addOptionsColumn(string $objectFieldName, string $label, array $options)
     {
         $this->gridHelper->addOptionsColumn($this, $objectFieldName, $label, $options);
+    }
+
+    /**
+     * @param string $objectFieldName
+     * @param string $label
+     * @param string $className
+     *
+     * @throws Exception
+     */
+    protected function addOptionsClassColumn(string $objectFieldName, string $label, string $className)
+    {
+        $this->gridHelper->addOptionsClassColumn($this, $objectFieldName, $label, $className);
     }
 
     /**
@@ -1379,6 +1427,7 @@ abstract class Grid
         $html = parent::getMainButtonsHtml();
 
         if ($this->getFilterVisibility()) {
+            $html .= $this->getChildHtml('filters_button');
             $html .= $this->getChildHtml('columns_button');
         }
 

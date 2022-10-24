@@ -9,8 +9,10 @@
 define([
     'jquery',
     'Magento_Ui/js/modal/modal',
+    'underscore',
+    'prototype',
     'domReady!'
-], function ($, modal) {
+], function ($, modal, _) {
     'use strict';
 
     // noinspection JSValidateJSDoc
@@ -18,7 +20,11 @@ define([
         options: {
             formKey: '',
             ajaxUrl: '',
-            dataGridId: ''
+            dataGridId: '',
+            jsObjectName: '',
+            fieldList: [],
+            groupByFieldList: [],
+            activeGroupByFieldList: []
         },
 
         _create: function createDataGridColumns() {
@@ -90,6 +96,64 @@ define([
                 attributes: false,
                 childList: true,
                 characterData: false
+            });
+
+            var filterRow = $('table.data-grid thead tr.data-grid-filters', dataGridColumns.dataGrid);
+
+            var hasFilters = false;
+            $('input.admin__control-text, select.admin__control-select', filterRow).each(function () {
+                if (! _.isEmpty($(this).val())) {
+                    hasFilters = true;
+                }
+            });
+
+            if (hasFilters) {
+                filterRow.addClass('active');
+            }
+
+            $('.action-filters', this.dataGrid).on('click', function () {
+                filterRow.toggleClass('active');
+            });
+
+            this.dataGridColumnsCheckboxes.each(function () {
+                var columnCheckbox = $(this);
+                var columnId = columnCheckbox.attr('id');
+
+                if (columnId) {
+                    var fieldName = columnId.replace('data-grid-column-', '');
+                    var columnClassName = 'col-' + fieldName;
+
+                    var columnHeader = $('th.' + columnClassName, $('table.data-grid', dataGridColumns.dataGrid));
+
+                    if (columnHeader.length) {
+                        if ($.inArray(fieldName, dataGridColumns.options.groupByFieldList) !== -1) {
+                            var groupedByIcon = $('<i>');
+                            groupedByIcon.data('group_by', fieldName);
+                            groupedByIcon.addClass('group_by-' + fieldName);
+                            if ($.inArray(fieldName, dataGridColumns.options.activeGroupByFieldList) !== -1) {
+                                groupedByIcon.addClass('active');
+                            }
+                            groupedByIcon.attr('title', $.mage.__('Group By'));
+                            columnHeader.append(groupedByIcon);
+
+                            groupedByIcon.on('click', function () {
+                                var groupBy = $(this).data('group_by');
+                                var index = $.inArray(groupBy, dataGridColumns.options.activeGroupByFieldList);
+
+                                if (index === -1) {
+                                    dataGridColumns.options.activeGroupByFieldList.push(groupBy);
+                                } else {
+                                    dataGridColumns.options.activeGroupByFieldList.splice(index, 1);
+                                }
+
+                                var grid = window[dataGridColumns.options.jsObjectName];
+                                grid.reload(grid.addVarToUrl('group_by',
+                                    Base64.encode(dataGridColumns.options.activeGroupByFieldList.join(','))));
+                                return false;
+                            });
+                        }
+                    }
+                }
             });
         },
 

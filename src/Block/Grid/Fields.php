@@ -16,8 +16,17 @@ class Fields
     /** @var string */
     private $dataGridId;
 
+    /** @var string */
+    private $jsObjectName;
+
     /** @var string[] */
     private $fieldList = [];
+
+    /** @var string[] */
+    private $groupByFieldList = [];
+
+    /** @var string[] */
+    private $activeGroupByFieldList = [];
 
     /**
      * @return void
@@ -46,6 +55,22 @@ class Fields
     }
 
     /**
+     * @return string
+     */
+    public function getJsObjectName(): string
+    {
+        return $this->jsObjectName;
+    }
+
+    /**
+     * @param string $jsObjectName
+     */
+    public function setJsObjectName(string $jsObjectName): void
+    {
+        $this->jsObjectName = $jsObjectName;
+    }
+
+    /**
      * @return string[]
      */
     public function getFieldList(): array
@@ -59,6 +84,38 @@ class Fields
     public function setFieldList(array $fieldList): void
     {
         $this->fieldList = $fieldList;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getGroupByFieldList(): array
+    {
+        return $this->groupByFieldList;
+    }
+
+    /**
+     * @param string[] $groupByFieldList
+     */
+    public function setGroupByFieldList(array $groupByFieldList): void
+    {
+        $this->groupByFieldList = $groupByFieldList;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getActiveGroupByFieldList(): array
+    {
+        return $this->activeGroupByFieldList;
+    }
+
+    /**
+     * @param string[] $activeGroupByFieldList
+     */
+    public function setActiveGroupByFieldList(array $activeGroupByFieldList): void
+    {
+        $this->activeGroupByFieldList = $activeGroupByFieldList;
     }
 
     /**

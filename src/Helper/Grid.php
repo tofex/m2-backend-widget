@@ -8,10 +8,12 @@ use Magento\Config\Model\Config\Source\Yesno;
 use Magento\Customer\Model\Group;
 use Magento\Customer\Model\ResourceModel\Group\Collection;
 use Magento\Directory\Model\Config\Source\Country;
+use Magento\Framework\Data\OptionSourceInterface;
 use Magento\Store\Model\System\Store;
 use Tofex\BackendWidget\Block\Grid\Column\Renderer\CustomerGroup;
 use Tofex\BackendWidget\Block\Grid\Column\Renderer\Description;
 use Tofex\Core\Helper\Customer;
+use Tofex\Core\Helper\Instances;
 use Tofex\Core\Helper\Template;
 use Tofex\Core\Model\Config\Source\Attribute;
 use Tofex\Core\Model\Config\Source\Attribute\AddressAttributeCode;
@@ -43,6 +45,9 @@ class Grid
 
     /** @var Customer */
     protected $customerHelper;
+
+    /** @var Instances */
+    protected $instanceHelper;
 
     /** @var Yesno */
     protected $sourceYesNo;
@@ -99,6 +104,7 @@ class Grid
      * @param Template              $templateHelper
      * @param Variables             $variableHelper
      * @param Customer              $customerHelper
+     * @param Instances             $instanceHelper
      * @param Yesno                 $sourceYesNo
      * @param Store                 $sourceStore
      * @param CmsPage               $sourceCmsPage
@@ -120,6 +126,7 @@ class Grid
         Template $templateHelper,
         Variables $variableHelper,
         Customer $customerHelper,
+        Instances $instanceHelper,
         Yesno $sourceYesNo,
         Store $sourceStore,
         CmsPage $sourceCmsPage,
@@ -140,6 +147,7 @@ class Grid
         $this->templateHelper = $templateHelper;
         $this->variableHelper = $variableHelper;
         $this->customerHelper = $customerHelper;
+        $this->instanceHelper = $instanceHelper;
 
         $this->sourceYesNo = $sourceYesNo;
         $this->sourceStore = $sourceStore;
@@ -333,6 +341,46 @@ class Grid
         array $options,
         $after = null)
     {
+        $config = [
+            'header'           => $label,
+            'type'             => 'options',
+            'column_css_class' => 'data-grid-td',
+            'index'            => $objectFieldName,
+            'options'          => $options
+        ];
+
+        if ($after) {
+            $config[ 'after' ] = $after;
+        }
+
+        $grid->addColumn($objectFieldName, $config);
+    }
+
+    /**
+     * @param Extended $grid
+     * @param string   $objectFieldName
+     * @param string   $label
+     * @param string   $className
+     * @param mixed    $after
+     *
+     * @throws Exception
+     */
+    public function addOptionsClassColumn(
+        Extended $grid,
+        string $objectFieldName,
+        string $label,
+        string $className,
+        $after = null)
+    {
+        /** @var OptionSourceInterface $optionsClass */
+        $optionsClass = $this->instanceHelper->getSingleton($className);
+
+        if (method_exists($optionsClass, 'toOptions')) {
+            $options = $optionsClass->toOptions();
+        } else {
+            throw new Exception(sprintf('Options class: %s does not implement method: toOptions', $className));
+        }
+
         $config = [
             'header'           => $label,
             'type'             => 'options',

@@ -27,7 +27,11 @@ abstract class Index
 
         $this->finishAction(__('Manage'));
 
-        return $this->_view->getPage();
+        $page = $this->_view->getPage();
+
+        $page->getConfig()->addBodyClass('tofex-backend-widget');
+
+        return $page;
     }
 
     /**

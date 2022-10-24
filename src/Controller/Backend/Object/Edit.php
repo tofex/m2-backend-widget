@@ -104,7 +104,11 @@ abstract class Edit
             $this->finishAction(__('View'));
         }
 
-        return $this->_view->getPage();
+        $page = $this->_view->getPage();
+
+        $page->getConfig()->addBodyClass('tofex-backend-widget');
+
+        return $page;
     }
 
     /**
