@@ -207,6 +207,7 @@ abstract class Grid
      * @return void
      * @throws FileSystemException
      * @noinspection PhpDocRedundantThrowsInspection
+     * @noinspection RedundantSuppression
      */
     public function _construct()
     {
@@ -410,7 +411,7 @@ abstract class Grid
                         sprintf('main_table.%s = %s.%s', $mainTableFieldName, $tableAlias, $joinTableFieldName);
                 }
 
-                /** @noinspection PhpParamsInspection */
+                /** @noinspection PhpParamsInspection, RedundantSuppression */
                 $collection->join([$tableAlias => $tableName], implode(' AND ', $joinConditions), $resultFields);
             }
         }
@@ -642,12 +643,39 @@ abstract class Grid
      * @param string $objectFieldName
      * @param string $label
      * @param string $className
+     * @param mixed  $after
      *
      * @throws Exception
      */
-    protected function addOptionsClassColumn(string $objectFieldName, string $label, string $className)
+    protected function addOptionsClassColumn(
+        string $objectFieldName,
+        string $label,
+        string $className,
+        $after = null)
     {
-        $this->gridHelper->addOptionsClassColumn($this, $objectFieldName, $label, $className);
+        $this->gridHelper->addOptionsClassColumn($this, $objectFieldName, $label, $className, $after);
+    }
+
+    /**
+     * @param string $objectFieldName
+     * @param string $label
+     * @param string $className
+     * @param string $methodName
+     * @param array  $parameters
+     * @param mixed  $after
+     *
+     * @throws Exception
+     */
+    protected function addOptionsClassCallbackColumn(
+        string $objectFieldName,
+        string $label,
+        string $className,
+        string $methodName,
+        array $parameters = [],
+        $after = null)
+    {
+        $this->gridHelper->addOptionsClassCallbackColumn($this, $objectFieldName, $label, $className, $methodName,
+            $parameters, $after);
     }
 
     /**

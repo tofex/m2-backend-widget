@@ -372,13 +372,36 @@ class Grid
         string $className,
         $after = null)
     {
+        $this->addOptionsClassCallbackColumn($grid, $objectFieldName, $label, $className, 'toOptions', [], $after);
+    }
+
+    /**
+     * @param Extended $grid
+     * @param string   $objectFieldName
+     * @param string   $label
+     * @param string   $className
+     * @param string   $methodName
+     * @param array    $parameters
+     * @param mixed    $after
+     *
+     * @throws Exception
+     */
+    public function addOptionsClassCallbackColumn(
+        Extended $grid,
+        string $objectFieldName,
+        string $label,
+        string $className,
+        string $methodName,
+        array $parameters = [],
+        $after = null)
+    {
         /** @var OptionSourceInterface $optionsClass */
         $optionsClass = $this->instanceHelper->getSingleton($className);
 
-        if (method_exists($optionsClass, 'toOptions')) {
-            $options = $optionsClass->toOptions();
+        if (method_exists($optionsClass, $methodName)) {
+            $options = call_user_func_array([$optionsClass, $methodName], $parameters);
         } else {
-            throw new Exception(sprintf('Options class: %s does not implement method: toOptions', $className));
+            throw new Exception(sprintf('Options class: %s does not implement method: %s', $className, $methodName));
         }
 
         $config = [

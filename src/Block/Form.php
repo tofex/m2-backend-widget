@@ -303,6 +303,33 @@ abstract class Form
     }
 
     /**
+     * @param Fieldset $fieldSet
+     * @param string   $objectFieldName
+     * @param string   $label
+     * @param string   $className
+     * @param mixed    $defaultValue
+     * @param bool     $required
+     * @param bool     $readOnly
+     * @param bool     $disabled
+     *
+     * @throws Exception
+     */
+    protected function addOptionsClassField(
+        Fieldset $fieldSet,
+        string $objectFieldName,
+        string $label,
+        string $className,
+        $defaultValue,
+        bool $required = false,
+        bool $readOnly = false,
+        bool $disabled = false)
+    {
+        $this->formHelper->addOptionsClassField($fieldSet, $this->objectRegistryKey, $objectFieldName, $label,
+            $className, $defaultValue, $this->getObject(), $required, $this->isReadOnlyAll() ? true : $readOnly,
+            $this->isDisableAll() ? true : $disabled);
+    }
+
+    /**
      * @param Fieldset           $fieldSet
      * @param string             $objectFieldName
      * @param string             $label
@@ -690,6 +717,27 @@ abstract class Form
         bool $disabled = false)
     {
         $this->formHelper->addCountryField($fieldSet, $this->objectRegistryKey, $objectFieldName, $label,
+            $this->getObject(), $required, $this->isReadOnlyAll() ? true : $readOnly,
+            $this->isDisableAll() ? true : $disabled);
+    }
+
+    /**
+     * @param Fieldset $fieldSet
+     * @param string   $objectFieldName
+     * @param string   $label
+     * @param bool     $required
+     * @param bool     $readOnly
+     * @param bool     $disabled
+     */
+    protected function addRegionField(
+        Fieldset $fieldSet,
+        string $objectFieldName,
+        string $label,
+        bool $required = false,
+        bool $readOnly = false,
+        bool $disabled = false)
+    {
+        $this->formHelper->addRegionField($fieldSet, $this->objectRegistryKey, $objectFieldName, $label,
             $this->getObject(), $required, $this->isReadOnlyAll() ? true : $readOnly,
             $this->isDisableAll() ? true : $disabled);
     }

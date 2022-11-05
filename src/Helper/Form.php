@@ -11,10 +11,12 @@ use Magento\Cms\Model\Wysiwyg\Config;
 use Magento\Config\Model\Config\Source\Website;
 use Magento\Config\Model\Config\Source\Yesno;
 use Magento\Customer\Model\Group;
+use Magento\Customer\Model\ResourceModel\Address\Attribute\Source\Region;
 use Magento\Customer\Model\ResourceModel\Group\Collection;
 use Magento\Directory\Model\Config\Source\Country;
 use Magento\Framework\Data\Form\Element\Fieldset;
 use Magento\Framework\Data\FormFactory;
+use Magento\Framework\Data\OptionSourceInterface;
 use Magento\Framework\Escaper;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Model\AbstractModel;
@@ -27,6 +29,7 @@ use Tofex\BackendWidget\Block\Config\Form\Value;
 use Tofex\BackendWidget\Block\Config\Form\Wysiwyg;
 use Tofex\BackendWidget\Model\Backend\Session;
 use Tofex\Core\Helper\Customer;
+use Tofex\Core\Helper\Instances;
 use Tofex\Core\Helper\Template;
 use Tofex\Core\Helper\Url;
 use Tofex\Core\Model\Config\Source\Attribute;
@@ -70,6 +73,9 @@ class Form
     /** @var \Tofex\Core\Helper\Attribute */
     protected $attributeHelper;
 
+    /** @var Instances */
+    protected $instanceHelper;
+
     /** @var Session */
     protected $adminhtmlSession;
 
@@ -105,6 +111,9 @@ class Form
 
     /** @var Country */
     protected $sourceCountry;
+
+    /** @var Region */
+    protected $sourceRegion;
 
     /** @var ActiveMethods */
     protected $sourcePaymentActiveMethods;
@@ -155,6 +164,7 @@ class Form
      * @param Url                                           $urlHelper
      * @param Customer                                      $customerHelper
      * @param \Tofex\Core\Helper\Attribute                  $attributeHelper
+     * @param Instances                                     $instanceHelper
      * @param Session                                       $adminhtmlSession
      * @param FormFactory                                   $formFactory
      * @param Yesno                                         $sourceYesNo
@@ -167,6 +177,7 @@ class Form
      * @param Categories                                    $sourceCategories
      * @param Operator                                      $sourceOperator
      * @param Country                                       $sourceCountry
+     * @param Region                                        $sourceRegion
      * @param ActiveMethods                                 $sourcePaymentActiveMethods
      * @param Attribute                                     $sourceAttributes
      * @param AttributeSet                                  $sourceAttributeSets
@@ -188,6 +199,7 @@ class Form
         Url $urlHelper,
         Customer $customerHelper,
         \Tofex\Core\Helper\Attribute $attributeHelper,
+        Instances $instanceHelper,
         Session $adminhtmlSession,
         FormFactory $formFactory,
         Yesno $sourceYesNo,
@@ -200,6 +212,7 @@ class Form
         Categories $sourceCategories,
         Operator $sourceOperator,
         Country $sourceCountry,
+        Region $sourceRegion,
         ActiveMethods $sourcePaymentActiveMethods,
         Attribute $sourceAttributes,
         AttributeSet $sourceAttributeSets,
@@ -220,6 +233,7 @@ class Form
         $this->urlHelper = $urlHelper;
         $this->customerHelper = $customerHelper;
         $this->attributeHelper = $attributeHelper;
+        $this->instanceHelper = $instanceHelper;
 
         $this->adminhtmlSession = $adminhtmlSession;
         $this->formFactory = $formFactory;
@@ -233,6 +247,7 @@ class Form
         $this->sourceCategories = $sourceCategories;
         $this->sourceOperator = $sourceOperator;
         $this->sourceCountry = $sourceCountry;
+        $this->sourceRegion = $sourceRegion;
         $this->sourcePaymentActiveMethods = $sourcePaymentActiveMethods;
         $this->sourceAttributes = $sourceAttributes;
         $this->sourceAttributeSets = $sourceAttributeSets;
@@ -571,6 +586,47 @@ class Form
         }
 
         $fieldSet->addField($objectFieldName, 'select', $config, $after);
+    }
+
+    /**
+     * @param Fieldset           $fieldSet
+     * @param string             $objectRegistryKey
+     * @param string             $objectFieldName
+     * @param string             $label
+     * @param string             $className
+     * @param mixed              $defaultValue
+     * @param AbstractModel|null $object
+     * @param bool               $required
+     * @param bool               $readOnly
+     * @param bool               $disabled
+     * @param mixed              $after
+     *
+     * @throws Exception
+     */
+    public function addOptionsClassField(
+        Fieldset $fieldSet,
+        string $objectRegistryKey,
+        string $objectFieldName,
+        string $label,
+        string $className,
+        $defaultValue,
+        AbstractModel $object = null,
+        bool $required = false,
+        bool $readOnly = false,
+        bool $disabled = false,
+        $after = false)
+    {
+        /** @var OptionSourceInterface $optionsClass */
+        $optionsClass = $this->instanceHelper->getSingleton($className);
+
+        if (method_exists($optionsClass, 'toOptionArray')) {
+            $options = $optionsClass->toOptionArray();
+        } else {
+            throw new Exception(sprintf('Options class: %s does not implement method: toOptions', $className));
+        }
+
+        $this->addOptionsField($fieldSet, $objectRegistryKey, $objectFieldName, $label, $options, $defaultValue,
+            $object, $required, $readOnly, $disabled, $after);
     }
 
     /**
@@ -1286,6 +1342,30 @@ class Form
     {
         $this->addOptionsField($fieldSet, $objectRegistryKey, $objectFieldName, $label,
             $this->sourceCountry->toOptionArray(false), null, $object, $required, $readOnly, $disabled);
+    }
+
+    /**
+     * @param Fieldset           $fieldSet
+     * @param string             $objectRegistryKey
+     * @param string             $objectFieldName
+     * @param string             $label
+     * @param AbstractModel|null $object
+     * @param bool               $required
+     * @param bool               $readOnly
+     * @param bool               $disabled
+     */
+    public function addRegionField(
+        Fieldset $fieldSet,
+        string $objectRegistryKey,
+        string $objectFieldName,
+        string $label,
+        AbstractModel $object = null,
+        bool $required = false,
+        bool $readOnly = false,
+        bool $disabled = false)
+    {
+        $this->addOptionsField($fieldSet, $objectRegistryKey, $objectFieldName, $label,
+            $this->sourceRegion->toOptionArray(), null, $object, $required, $readOnly, $disabled);
     }
 
     /**
