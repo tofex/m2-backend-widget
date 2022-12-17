@@ -53,6 +53,10 @@ abstract class MassDelete
 
         $ids = $this->getRequest()->getParam($paramName);
 
+        if ( ! is_array($ids) && $ids !== null && $ids !== '') {
+            $ids = explode(',', $ids);
+        }
+
         if (is_array($ids)) {
             $ids = array_unique($ids);
 

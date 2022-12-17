@@ -170,6 +170,16 @@ class Grid
     }
 
     /**
+     * @param string $objectFieldName
+     *
+     * @return string
+     */
+    protected function getColumnId(string $objectFieldName): string
+    {
+        return $objectFieldName === 'action' ? sprintf('%_column', $objectFieldName) : $objectFieldName;
+    }
+
+    /**
      * @param Extended $grid
      * @param string   $objectFieldName
      * @param string   $label
@@ -178,7 +188,7 @@ class Grid
      */
     public function addTextColumn(Extended $grid, string $objectFieldName, string $label)
     {
-        $grid->addColumn($objectFieldName, [
+        $grid->addColumn($this->getColumnId($objectFieldName), [
             'header'           => $label,
             'index'            => $objectFieldName,
             'type'             => 'text',
@@ -196,7 +206,7 @@ class Grid
      */
     public function addTextColumnWithFilter(Extended $grid, string $objectFieldName, string $label, string $filterIndex)
     {
-        $grid->addColumn($objectFieldName, [
+        $grid->addColumn($this->getColumnId($objectFieldName), [
             'header'           => $label,
             'index'            => $objectFieldName,
             'filter_index'     => $filterIndex,
@@ -215,7 +225,7 @@ class Grid
      */
     public function addTextColumnWithFilterCondition(Extended $grid, string $objectFieldName, string $label, $callback)
     {
-        $grid->addColumn($objectFieldName, [
+        $grid->addColumn($this->getColumnId($objectFieldName), [
             'header'                    => $label,
             'index'                     => $objectFieldName,
             'type'                      => 'text',
@@ -234,7 +244,7 @@ class Grid
      */
     public function addTextColumnWithRenderer(Extended $grid, string $objectFieldName, string $label, string $renderer)
     {
-        $grid->addColumn($objectFieldName, [
+        $grid->addColumn($this->getColumnId($objectFieldName), [
             'header'           => $label,
             'index'            => $objectFieldName,
             'type'             => 'text',
@@ -254,7 +264,7 @@ class Grid
      */
     public function addNumberColumn(Extended $grid, string $objectFieldName, string $label)
     {
-        $grid->addColumn($objectFieldName, [
+        $grid->addColumn($this->getColumnId($objectFieldName), [
             'header'           => $label,
             'index'            => $objectFieldName,
             'type'             => 'number',
@@ -276,7 +286,7 @@ class Grid
         string $label,
         string $filterIndex)
     {
-        $grid->addColumn($objectFieldName, [
+        $grid->addColumn($this->getColumnId($objectFieldName), [
             'header'           => $label,
             'index'            => $objectFieldName,
             'filter_index'     => $filterIndex,
@@ -299,7 +309,7 @@ class Grid
         string $label,
         $callback)
     {
-        $grid->addColumn($objectFieldName, [
+        $grid->addColumn($this->getColumnId($objectFieldName), [
             'header'                    => $label,
             'index'                     => $objectFieldName,
             'type'                      => 'number',
@@ -317,7 +327,7 @@ class Grid
      */
     public function addPriceColumn(Extended $grid, string $objectFieldName, string $label)
     {
-        $grid->addColumn($objectFieldName, [
+        $grid->addColumn($this->getColumnId($objectFieldName), [
             'header'           => $label,
             'index'            => $objectFieldName,
             'type'             => 'price',
@@ -353,7 +363,7 @@ class Grid
             $config[ 'after' ] = $after;
         }
 
-        $grid->addColumn($objectFieldName, $config);
+        $grid->addColumn($this->getColumnId($objectFieldName), $config);
     }
 
     /**
@@ -416,7 +426,7 @@ class Grid
             $config[ 'after' ] = $after;
         }
 
-        $grid->addColumn($objectFieldName, $config);
+        $grid->addColumn($this->getColumnId($objectFieldName), $config);
     }
 
     /**
@@ -435,7 +445,7 @@ class Grid
         array $options,
         string $filterIndex)
     {
-        $grid->addColumn($objectFieldName, [
+        $grid->addColumn($this->getColumnId($objectFieldName), [
             'header'           => $label,
             'type'             => 'options',
             'column_css_class' => 'data-grid-td',
@@ -461,7 +471,7 @@ class Grid
         array $options,
         $callback)
     {
-        $grid->addColumn($objectFieldName, [
+        $grid->addColumn($this->getColumnId($objectFieldName), [
             'header'                    => $label,
             'type'                      => 'options',
             'column_css_class'          => 'data-grid-td',
@@ -489,7 +499,7 @@ class Grid
         $callback,
         string $renderer)
     {
-        $grid->addColumn($objectFieldName, [
+        $grid->addColumn($this->getColumnId($objectFieldName), [
             'header'                    => $label,
             'type'                      => 'options',
             'column_css_class'          => 'data-grid-td',
@@ -518,7 +528,7 @@ class Grid
         $filterCallback,
         $frameCallback)
     {
-        $grid->addColumn($objectFieldName, [
+        $grid->addColumn($this->getColumnId($objectFieldName), [
             'header'                    => $label,
             'type'                      => 'options',
             'column_css_class'          => 'data-grid-td',
@@ -545,7 +555,7 @@ class Grid
         array $options,
         $callback)
     {
-        $grid->addColumn($objectFieldName, [
+        $grid->addColumn($this->getColumnId($objectFieldName), [
             'header'           => $label,
             'type'             => 'options',
             'column_css_class' => 'data-grid-td',
@@ -564,7 +574,7 @@ class Grid
      */
     public function addDateColumn(Extended $grid, string $objectFieldName, string $label)
     {
-        $grid->addColumn($objectFieldName, [
+        $grid->addColumn($this->getColumnId($objectFieldName), [
             'header'           => $label,
             'type'             => 'date',
             'column_css_class' => 'data-grid-td date',
@@ -581,7 +591,7 @@ class Grid
      */
     public function addDatetimeColumn(Extended $grid, string $objectFieldName, string $label)
     {
-        $grid->addColumn($objectFieldName, [
+        $grid->addColumn($this->getColumnId($objectFieldName), [
             'header'           => $label,
             'type'             => 'datetime',
             'column_css_class' => 'data-grid-td time',
@@ -630,17 +640,18 @@ class Grid
 
     /**
      * @param Extended    $grid
+     * @param string      $objectFieldName
      * @param string|null $label
      *
      * @throws Exception
      */
-    public function addWebsiteNameColumn(Extended $grid, string $label = null)
+    public function addWebsiteNameColumn(Extended $grid, string $objectFieldName, string $label = null)
     {
         if ($this->variableHelper->isEmpty($label)) {
             $label = __('Website');
         }
 
-        $grid->addColumn('website_name', [
+        $grid->addColumn($this->getColumnId($objectFieldName), [
             'header'           => $label,
             'type'             => 'text',
             'column_css_class' => 'data-grid-td',
@@ -662,7 +673,7 @@ class Grid
             $label = __('Store View');
         }
 
-        $grid->addColumn($objectFieldName, [
+        $grid->addColumn($this->getColumnId($objectFieldName), [
             'header'           => $label,
             'type'             => 'options',
             'column_css_class' => 'data-grid-td',
@@ -685,7 +696,7 @@ class Grid
             $label = __('Store View');
         }
 
-        $grid->addColumn($objectFieldName, [
+        $grid->addColumn($this->getColumnId($objectFieldName), [
             'header'                    => $label,
             'index'                     => $objectFieldName,
             'type'                      => 'store',
@@ -710,7 +721,7 @@ class Grid
             $label = __('Store View');
         }
 
-        $grid->addColumn($objectFieldName, [
+        $grid->addColumn($this->getColumnId($objectFieldName), [
             'header'                    => $label,
             'index'                     => $objectFieldName,
             'type'                      => 'store_admin',
@@ -737,7 +748,7 @@ class Grid
             $label = __('Page');
         }
 
-        $grid->addColumn($objectFieldName, [
+        $grid->addColumn($this->getColumnId($objectFieldName), [
             'header'           => $label,
             'type'             => 'options',
             'column_css_class' => 'data-grid-td',
@@ -760,7 +771,7 @@ class Grid
             $label = __('Block');
         }
 
-        $grid->addColumn($objectFieldName, [
+        $grid->addColumn($this->getColumnId($objectFieldName), [
             'header'           => $label,
             'type'             => 'options',
             'column_css_class' => 'data-grid-td',
@@ -791,7 +802,7 @@ class Grid
      */
     public function addTemplateColumn(Extended $grid, string $objectFieldName, string $label)
     {
-        $grid->addColumn($objectFieldName, [
+        $grid->addColumn($this->getColumnId($objectFieldName), [
             'header'           => $label,
             'type'             => 'options',
             'column_css_class' => 'data-grid-td',
@@ -811,7 +822,7 @@ class Grid
      */
     public function addCategoriesColumn(Extended $grid, string $objectFieldName, string $label)
     {
-        $grid->addColumn($objectFieldName, [
+        $grid->addColumn($this->getColumnId($objectFieldName), [
             'header'                    => $label,
             'index'                     => $objectFieldName,
             'type'                      => 'options',
@@ -839,7 +850,7 @@ class Grid
         string $width = '100%',
         string $height = '15px')
     {
-        $grid->addColumn($objectFieldName, [
+        $grid->addColumn($this->getColumnId($objectFieldName), [
             'header'           => $label,
             'type'             => 'text',
             'column_css_class' => 'data-grid-td',
@@ -982,7 +993,7 @@ class Grid
         bool $category = false,
         bool $product = true)
     {
-        $grid->addColumn($objectFieldName, [
+        $grid->addColumn($this->getColumnId($objectFieldName), [
             'header'           => $label,
             'type'             => 'options',
             'column_css_class' => 'data-grid-td',
@@ -1010,7 +1021,7 @@ class Grid
     {
         $objectFieldValueName = sprintf('%s_value', $valueFieldName);
 
-        $grid->addColumn($valueFieldName, [
+        $grid->addColumn($this->getColumnId($valueFieldName), [
             'header'                    => $label,
             'index'                     => $objectFieldValueName,
             'type'                      => 'text',
@@ -1045,7 +1056,7 @@ class Grid
         bool $category = false,
         bool $product = true)
     {
-        $grid->addColumn($objectFieldName, [
+        $grid->addColumn($this->getColumnId($objectFieldName), [
             'header'           => $label,
             'type'             => 'options',
             'column_css_class' => 'data-grid-td',
@@ -1075,7 +1086,7 @@ class Grid
         bool $category = false,
         bool $product = true)
     {
-        $grid->addColumn($objectFieldName, [
+        $grid->addColumn($this->getColumnId($objectFieldName), [
             'header'           => $label,
             'type'             => 'options',
             'column_css_class' => 'data-grid-td',

@@ -813,7 +813,7 @@ abstract class Grid
         $this->addJoinValues('store_website', [$objectFieldName => 'website_id'], ['website_name' => 'name'],
             'website');
 
-        $this->gridHelper->addWebsiteNameColumn($this, $label);
+        $this->gridHelper->addWebsiteNameColumn($this, $objectFieldName, $label);
     }
 
     /**
