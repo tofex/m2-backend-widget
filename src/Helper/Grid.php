@@ -176,7 +176,7 @@ class Grid
      */
     protected function getColumnId(string $objectFieldName): string
     {
-        return $objectFieldName === 'action' ? sprintf('%_column', $objectFieldName) : $objectFieldName;
+        return $objectFieldName === 'action' ? sprintf('%sgridcolumn', $objectFieldName) : $objectFieldName;
     }
 
     /**

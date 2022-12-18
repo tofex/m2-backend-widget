@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpDeprecationInspection */
 
 namespace Tofex\BackendWidget\Block\Grid;
 
@@ -29,7 +29,17 @@ abstract class GroupBy
 
             $select = $collection->getSelect();
 
-            $columns = explode(',', $groupBy);
+            $groupByColumns = explode(',', $groupBy);
+
+            $columns = [];
+
+            foreach ($groupByColumns as $groupByColumn) {
+                if (preg_match('/(.*)gridcolumn$/', $groupByColumn, $matches)) {
+                    $groupByColumn = $matches[ 1 ];
+                }
+
+                $columns[] = $groupByColumn;
+            }
 
             $select->reset(Zend_Db_Select::COLUMNS);
             $select->columns($columns);
@@ -49,7 +59,13 @@ abstract class GroupBy
         $groupBy = $this->getParam('group_by');
 
         if ( ! $this->variableHelper->isEmpty($groupBy)) {
-            $this->addNumberColumn('row_count', __('Count'));
+            $this->addColumn('row_count', [
+                'header'           => __('Count'),
+                'index'            => 'row_count',
+                'type'             => 'number',
+                'column_css_class' => 'data-grid-td',
+                'filter'           => false
+            ]);
 
             foreach ($this->getNotGroupableFieldNames() as $fieldName) {
                 $this->removeColumn($fieldName);
